@@ -1,0 +1,6 @@
+color_list
+#00ffff,#ff8080,#5bff5b,white,black
+size_list
+12,6,3
+hight,width
+9,9
