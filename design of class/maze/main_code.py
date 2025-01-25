@@ -9,14 +9,16 @@ import keyboard#为什么要任意按键 ...
 import subprocess#用自运行做下一关
 from queue import PriorityQueue#优先队列 A*要用 懒得自己做
 import tkinter as tk#窗口 菜单创建
+import customtkinter
+from customtkinter import CTkToplevel
 from datetime import datetime#获取日期
 from PIL import Image, ImageDraw, ImageTk#pillow库 绘图 将PIL的图片转为tkinter格式
 from tkinter import colorchooser, simpledialog, messagebox, StringVar#取色器 文本组件输入 输出 更新文本
 
 input = sys.stdin.readline
-log_write_open = open("design of class/maze/text/log.txt", "a", encoding = 'UTF-8')#存储路径 时间..
-default_setting_read_open = open("design of class/maze/text/default setting.txt", "r", encoding = 'UTF-8')#默认设置 玩家不可修改 只用于恢复默认设置
-player_default_setting_read_open = open("design of class/maze/text/player default setting.txt", "r", encoding = 'UTF-8')
+log_write_open = open("design of class/text/log.txt", "a", encoding = 'UTF-8')#存储路径 时间..
+default_setting_read_open = open("design of class/text/default setting.txt", "r", encoding = 'UTF-8')#默认设置 玩家不可修改 只用于恢复默认设置
+player_default_setting_read_open = open("design of class/text/player default setting.txt", "r", encoding = 'UTF-8')
 default_setting_read = default_setting_read_open.readlines()
 player_default_setting_read = player_default_setting_read_open.readlines()
 
@@ -37,6 +39,13 @@ position = [0, 0]#玩家当前位置
 sound_effect_list = ["explosion 1.mp3", "explosion 2.mp3", "coin received1.mp3", "wild_flower_Hardcore.mp3", "Daisuke.wav"]#神金音效 哎 LDP
 sound_effect_apply = [3, 2]#0:玩家移动音效 1:玩家通关音效
 
+def refresh(event = 0):
+    try:
+        root.destroy()
+        subprocess.run(['python', 'design of class/main_code.py'])#下一关
+    except:
+        pass
+
 class two_queue:
     def __init__(self, rows, cols, num = 0):#num设置初始化为墙:0 路:1
         self.data = [[num for _ in range(cols)] for _ in range(rows)]
@@ -45,39 +54,100 @@ class two_queue:
             print(i)
         print()
 
-def load_image(im):
+class ctktoplevel_frame(customtkinter.CTkToplevel):
+    def __init__(self, master, title):
+        super().__init__(master)
+        self.title(title)
+        def destroy_window(event):
+            self.destroy()
+        self.bind("<Escape>", destroy_window)
+        self.bind('<F5>', refresh)
+    
+    def set_size(self, x, y, dx = 0, dy = 0):
+        self.width = x
+        self.high = y
+        self.geometry("{}x{}+{}+{}".format(x, y, dx, dy))
+
+class radiobutton_frame(customtkinter.CTkFrame):
+    def __init__(self, master, values):
+        super().__init__(master)
+        self.grid_columnconfigure(0, weight=1)
+        self.values = values
+        self.radiobuttons = []
+        self.variable = customtkinter.StringVar(value="")
+
+        for i, value in enumerate(self.values):
+            radiobutton = customtkinter.CTkRadioButton(self, text=value, value=value, font=(title_font, 25),variable=self.variable)
+            radiobutton.grid(row = i + 1, column = 0, padx=10, pady=5, sticky="w")
+            self.radiobuttons.append(radiobutton)
+
+    def get(self):
+        return self.variable.get()
+
+    def set(self, value):
+        self.variable.set(value)
+
+class optionmenu_frame(customtkinter.CTkFrame):
+    def __init__(self, master, title, values, defalut_value = ''):
+        super().__init__(master)
+        self.grid_columnconfigure(0, weight=1)
+        self.values = values
+        self.defalut_value = defalut_value
+        self.title = title
+        self.radiobuttons = []
+        self.variable = customtkinter.StringVar(value = defalut_value)
+        self.current = defalut_value
+
+        self.title = customtkinter.CTkLabel(self, text=self.title, fg_color="gray70", corner_radius=6)
+        self.title.grid(row=0, column=0, padx=10, pady=5, sticky="w")
+
+        self.option_menu = customtkinter.CTkOptionMenu(self, values = self.values, variable = self.variable, command= self.click)
+        self.option_menu.grid(row = 0, column = 0, padx=10, pady=5)
+
+    def get(self):
+        return self.variable.get()
+    
+    def click(self, choice):
+        pass
+
+class App(customtkinter.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("迷 宫 游 戏")
+        self.grid_columnconfigure((0, 1), weight=1)
+        self.grid_rowconfigure(0, weight=1)
+        self.bind('<F5>', refresh)
+        self.bind("<Escape>", self.root_destroy)
+    
+    def root_destroy(self, event=None):
+        self.destroy()
+    def set_size(self, x, y, dx, dy):
+        self.width = x
+        self.high = y
+        self.geometry("{}x{}+{}+{}".format(x, y, dx, dy))
+
+def update_root():
+    root.update()
+    for widget in root.pack_slaves():
+        widget.destroy()#清除缓存画布
+    global im
     tk_image = ImageTk.PhotoImage(im)#将PIL的Image对象转换为Tkinter可以识别的格式
     if(record_time[0]):
         label = tk.Label(root, image = tk_image, text="用时:{}".format(round(time.time() - record_time[0], 2)), font=("Arial", 20), compound="bottom")#将label组件的父组件设置为root(要放在的位置) 
     else:
         label = tk.Label(root, image = tk_image)
-    '''
-    text-compound('top'、'bottom'、'left'、'right'、'center')一起用才能在图形上显示文字
-    fg 和 bg: 分别用于设置前景色（文本颜色）和背景色。
-    font: 用于设置字体样式。
-    '''
     label.image = tk_image#图像对象需要保持引用 否则图像可能会被垃圾回收机制回收 导致显示不出来(坑)
     label.pack()#将组件放到父组件中
 
-def update_root(im):
-    root.update()
-    for widget in root.pack_slaves():
-        widget.destroy()#清除缓存画布！
-    load_image(im)
-
 def game_loop():
     if(True):
-        update_root(im)
+        update_root()
         if(break_move):#重新开始
             root.config(cursor="arrow")  # 恢复默认箭头光标
             record_changed_setting()
             root.destroy()
             sys.exit()
-        root.after(5, game_loop)#每隔0.2秒更新一次GUI
-
-def init_maze():
-    draw = ImageDraw.Draw(im)#在im上绘画
-    draw.rectangle((0, 0, (width + 2) * size_list[0], (hight + 2) * size_list[0]), fill = color_list[3])#填充中间
+        root.after(50, game_loop)#每隔0.2秒更新一次GUI
 
 def init_setting():
     global color_list, size_list, hight, width
@@ -119,7 +189,7 @@ def record_changed_setting():
     list_index = player_default_setting_read.index("hight,width\n") + 1
     player_default_setting_read[list_index] = str(hight) + ',' + str(width) + '\n'
     #print("更改后的设置为{}".format(player_default_setting_read))
-    player_default_setting_write = open("design of class/maze/text/player default setting.txt", "w", encoding = 'UTF-8')#玩家可修改的默认设置 覆盖写直接
+    player_default_setting_write = open("design of class/text/player default setting.txt", "w", encoding = 'UTF-8')#玩家可修改的默认设置 覆盖写直接
     player_default_setting_write.writelines(player_default_setting_read)
     player_default_setting_write.close()
 
@@ -216,7 +286,7 @@ def random_dfs(event = 0):
                 hight = 15; width = 15
                 root.destroy()
                 record_changed_setting()
-                subprocess.run(['python', 'design of class/maze/main_code.py'])#下一关
+                subprocess.run(['python', 'design of class/main_code.py'])#下一关
 
             M[1][0] = ' '
             visit.data[1][0] = 1
@@ -233,7 +303,7 @@ def random_dfs(event = 0):
             hight = 15; width = 15
             root.destroy()
             record_changed_setting()
-            subprocess.run(['python', 'design of class/maze/main_code.py'])#下一关
+            subprocess.run(['python', 'design of class/main_code.py'])#下一关
     else:
         get_now_algorithm()
 
@@ -463,7 +533,7 @@ def run_prim(event = 0):
             hight = 15; width = 15
             root.destroy()
             record_changed_setting()
-            subprocess.run(['python', 'design of class/maze/main_code.py'])#下一关
+            subprocess.run(['python', 'design of class/main_code.py'])#下一关
     else:
         get_now_algorithm()
         
@@ -511,14 +581,14 @@ def press_move(event : tk.Event):
                 draw.rectangle((position[0] * size_list[0] + decrease, position[1] * size_list[0] + decrease, position[0] * size_list[0] + plus, position[1] * size_list[0] + plus), fill = color_list[3])#
             draw.rectangle(((position[0] + 1) * size_list[0] + decrease, position[1] * size_list[0] + decrease, (position[0] + 1) * size_list[0] + plus, position[1] * size_list[0] + plus), fill = color_list[1])#表示当前位置
             flag[2] = 0
-            sound = pygame.mixer.Sound('design of class/maze/sound effect set/{}'.format(sound_effect_list[sound_effect_apply[1]]))
+            sound = pygame.mixer.Sound('design of class/sound effect set/{}'.format(sound_effect_list[sound_effect_apply[1]]))
             sound.play()
             flag[1] = True
             record_time[1] = time.time()
             log_write_open.write("通关时间:{:.3f}\n".format(record_time[1] - record_time[0]))
             score = round(min((width * hight * 0.28) / len(move_path), 1) * 100, 2)#得分函数
             log_write_open.write("得分:{:.3f}\n".format(score))
-            im.save('design of class/maze/map set/map_record.png')
+            im.save('design of class/map set/map_record.png')
             messagebox.showinfo("恭喜过关", "你过关!\n得分:{}\n弹窗关闭后按下任意键进入下一关".format(score))
             root.config(cursor="arrow")#恢复鼠标光标
             keyboard.hook(on_key_event)
@@ -526,7 +596,7 @@ def press_move(event : tk.Event):
                 time.sleep(0.2)
             root.destroy()
             record_changed_setting()
-            subprocess.run(['python', 'design of class/maze/main_code.py'])#下一关
+            subprocess.run(['python', 'design of class/main_code.py'])#下一关
         
         if(0 < position[0] + 1 <= (width + 1) and 0 < position[1] <= hight and visit.data[position[1]][position[0] + 1] == 1):
             draw.rectangle((position[0] * size_list[0] + decrease, position[1] * size_list[0] + decrease, (position[0] + 1) * size_list[0] + plus, position[1] * size_list[0] + plus), fill = color_list[0])
@@ -534,7 +604,7 @@ def press_move(event : tk.Event):
     if(flag[1] == False):
         log_write_open.write("x = {}, y = {}\n".format(position[0], position[1]))
     move_path.append((position[0], position[1]))
-    sound = pygame.mixer.Sound('design of class/maze/sound effect set/{}'.format(sound_effect_list[sound_effect_apply[0]]))#玩家移动音效
+    sound = pygame.mixer.Sound('design of class/sound effect set/{}'.format(sound_effect_list[sound_effect_apply[0]]))#玩家移动音效
     sound.play(loops=0, maxtime=800)
     if(flag[2] == 2):
         draw_no_fog_circle()
@@ -610,29 +680,26 @@ def fog_mode(event = 0):
             flag[2] = 2
             destory_window()
             global choose_fog_mode_window
-            choose_fog_mode_window = tk.Toplevel(root)
-            choose_fog_mode_window.title("迷雾模式设置")
-            choose_fog_mode_window.geometry('600x220')
-            def choose_fog_mode_window_destroy(event = 0):
-                choose_fog_mode_window.destroy()
-            choose_fog_mode_window.bind("<Escape>", choose_fog_mode_window_destroy)
+            choose_fog_mode_window = ctktoplevel_frame(root, "迷雾模式设置")
+            choose_fog_mode_window.set_size(600, 220)
             def flag3_1():
                 flag[3] = 1
                 choose_fog_mode_window.destroy()
                 record_time[0] = time.time()#防止还在选类型就开始计时
-            torch_style = tk.Button(choose_fog_mode_window, text="探索型", command = flag3_1, fg = '#11FBFF', font = ('华文楷体', 22))
+            title_size = 25
+            torch_style = customtkinter.CTkButton(choose_fog_mode_window, text="探索型", command = flag3_1, font = (title_font, title_size))
             torch_style.place(x = 50, y = 20)#22号字体大约40px/字 两个text间隔60px
-            explor_explain = tk.Label(choose_fog_mode_window, text="照亮路径上所有格子的迷雾", fg = '#11FBFF', font = ('华文宋体', 20))
-            explor_explain.place(x = 170, y = 35)#解释性文字 y上的偏移量为15
+            explor_explain = customtkinter.CTkLabel(choose_fog_mode_window, text="照亮路径上所有格子的迷雾", font = ('华文宋体', 20))
+            explor_explain.place(x = 200, y = 20)#解释性文字 y上的偏移量为15
             def flag3_0():
                 flag[3] = 0
                 choose_fog_mode_window.destroy()
                 record_time[0] = time.time()
 
-            explor_style = tk.Button(choose_fog_mode_window, text="火把型(默认)", command = flag3_0, fg = '#11FBFF', font = ('华文楷体', 22))
+            explor_style = customtkinter.CTkButton(choose_fog_mode_window, text="火把型(默认)", command = flag3_0, font = (title_font, title_size))
             explor_style.place(x = 50, y = 80)
-            torch_explain = tk.Label(choose_fog_mode_window, text="只照亮当前格子周围的迷雾", fg = '#11FBFF', font = ('华文宋体', 20))
-            torch_explain.place(x = 250, y = 95)
+            torch_explain = customtkinter.CTkLabel(choose_fog_mode_window, text="只照亮当前格子周围的迷雾", font = ('华文宋体', 20))
+            torch_explain.place(x = 190, y = 80)
 
             root.config(cursor="none")  # 隐藏鼠标光标
             draw = ImageDraw.Draw(im)#在im上绘画
@@ -658,12 +725,12 @@ def astar_search(x, y, current_cost, pos_and_total_cost, go_back):
     decrease = (size_list[0] - size_list[1]) / 2
     if(flag[5] == 2 or flag[5] == 3):
         draw.rectangle((x * size_list[0] + decrease, y * size_list[0] + decrease, x * size_list[0] + plus, y * size_list[0] + plus), fill = color_list[0])#以玩家路径颜色绘画A*探索路径
-        update_root(im)
+        update_root()
     if (x == width and y == hight):
         back_x = x; back_y = y
         while(back_x != 0 or back_y != 1):
             if(flag[5] == 1 or flag[5] == 3):
-                update_root(im)
+                update_root()
             now_x = back_x; now_y = back_y
             back_x, back_y = go_back[(back_x, back_y)]
             if(now_x - back_x == 1):#l
@@ -677,7 +744,7 @@ def astar_search(x, y, current_cost, pos_and_total_cost, go_back):
         draw.rectangle((width * size_list[0] + decrease, hight * size_list[0] + decrease, (width + 1) * size_list[0] + plus, hight * size_list[0] + plus), fill = color_list[2])#补齐最后一格到出口的线条
         draw.rectangle((0 * size_list[0] + decrease, 1 * size_list[0] + decrease, (0 + 1) * size_list[0] + plus, 1 * size_list[0] + plus), fill = color_list[2])
 
-        im.save('design of class/maze/map set/map_record.png')
+        im.save('design of class/map set/map_record.png')
         messagebox.showinfo("<del>过关提示</del>", "你过关!\n?什么地方不太对?")
         root.config(cursor = "arrow")  # 恢复默认箭头光标
         keyboard.hook(on_key_event)
@@ -688,7 +755,7 @@ def astar_search(x, y, current_cost, pos_and_total_cost, go_back):
         draw.rectangle((0, 0, width * size_list[0], hight * size_list[0]), fill = "white")#重置空白画布
         root.destroy()
         record_changed_setting()
-        subprocess.run(['python', 'design of class/maze/main_code.py'])
+        subprocess.run(['python', 'design of class/main_code.py'])
     
     def manhattan_distance(start, end):#曼哈顿距离
         return abs(start[0] - end[0]) + abs(start[1] - end[1])
@@ -748,7 +815,7 @@ def init_other_menu():
     other_menu.add_separator() # 添加分隔线
 
     def clean_log(event = 0):#记得加event = 0,不用都行
-        _ = open("design of class/maze/text/log.txt", 'w', encoding = "UTF-8")
+        _ = open("design of class/text/log.txt", 'w', encoding = "UTF-8")
     other_menu.add_command(label = "重置得分记录表", command = clean_log, accelerator = "Alt + c")
     root.bind("<Alt-c>", clean_log)
     other_menu.add_separator() # 添加分隔线
@@ -757,7 +824,7 @@ def init_other_menu():
     root.bind("<Escape>", Break_move)
 
 def best_score(event = 0):
-    log_read_open = open("design of class/maze/text/log.txt", 'r', encoding = "UTF-8")
+    log_read_open = open("design of class/text/log.txt", 'r', encoding = "UTF-8")
     contents = log_read_open.readlines()
     max_score = 0
     if(len(contents)):
@@ -796,27 +863,23 @@ def init_change_menu():
 
 def size_settings_window(event = 0):
     if(flag[0] == 0):#玩家没有生成迷宫
-        # 创建设置窗口
         destory_window()
         global size_setting_window
-        size_setting_window = tk.Toplevel(root)
-        size_setting_window.title("大小设置")
-        size_setting_window.geometry('400x350')
-        def size_setting_window_destroy(event = 0):
-            size_setting_window.destroy()
-        size_setting_window.bind("<Escape>", size_setting_window_destroy)
-        change_hig_wid_button = tk.Button(size_setting_window, text="更改迷宫大小", command = change_hig_wid, fg = '#11FBFF', font = ('华文楷体', 22))#只用height会出现有点按钮无法显示文字 有点按钮长度明显过长
-        change_hig_wid_button.place(x = 50, y = 20)
-        # 创建一个变量来保存设置
+        size_setting_window = ctktoplevel_frame(root, "大小设置")
+        size_setting_window.set_size(400, 350, 0, 0)
 
-        change_cell_button = tk.Button(size_setting_window, text="更改迷宫晶格大小", command = change_cell, fg = '#11FBFF', font = ('华文楷体', 22))
-        change_cell_button.place(x = 50, y = 80)
+        title_size = 23
+        change_hig_wid_button = customtkinter.CTkButton(size_setting_window, text="更改迷宫大小", command = change_hig_wid, font = (title_font, title_size))
+        change_hig_wid_button.place(relx=0.5, rely=0.1, anchor="center")
 
-        change_line_size_button = tk.Button(size_setting_window, text="更改路径线条大小", command = change_line_size, fg = '#11FBFF', font = ('华文楷体', 22))
-        change_line_size_button.place(x = 50, y = 140)
+        change_cell_button = customtkinter.CTkButton(size_setting_window, text="更改迷宫晶格大小", command = change_cell, font = (title_font, title_size))
+        change_cell_button.place(relx=0.5, rely=0.2, anchor="center")
 
-        change_view_fog_size_button = tk.Button(size_setting_window, text="更改迷雾可见半径大小", command = change_view_fog_size, fg = '#11FBFF', font = ('华文楷体', 22))
-        change_view_fog_size_button.place(x = 50, y = 200)
+        change_line_size_button = customtkinter.CTkButton(size_setting_window, text="更改路径线条大小", command = change_line_size, font = (title_font, title_size))
+        change_line_size_button.place(relx=0.5, rely=0.3, anchor="center")
+
+        change_view_fog_size_button = customtkinter.CTkButton(size_setting_window, text="更改迷雾可见半径大小", command = change_view_fog_size, font = (title_font, title_size))
+        change_view_fog_size_button.place(relx=0.5, rely=0.4, anchor="center")
     else:
         messagebox.showwarning("流程错误", "无法在生成迷宫后修改迷宫大小")
 
@@ -886,138 +949,157 @@ def color_settings_window(event = 0):
         # 创建设置窗口
         destory_window()
         global color_setting_window
-        color_setting_window = tk.Toplevel(root)
-        color_setting_window.title("颜色设置")
-        color_setting_window.geometry('420x420')
-        def color_setting_window_destroy(event = 0):
-            color_setting_window.destroy()
-        color_setting_window.bind("<Escape>", color_setting_window_destroy)
-        change_window_backgroud_colors = tk.Button(color_setting_window, text="更改窗口背景颜色", command = change_root_backgroud_color, fg = '#11FBFF', font = ('华文楷体', 22))
-        change_window_backgroud_colors.place(x = 50, y = 20)
+        color_setting_window = ctktoplevel_frame(root, "颜色设置")
+        color_setting_window.set_size(420, 420)
+        title_size = 25
+        relyi = 0.1
+        change_window_backgroud_colors = customtkinter.CTkButton(color_setting_window, text="更改窗口背景颜色", command = change_root_backgroud_color, font = (title_font, title_size))
+        change_window_backgroud_colors.place(relx=0.5, rely=relyi, anchor="center")
+        relyi += 0.1
         
-        change_player_point_colors =tk.Button(color_setting_window, text="更改玩家当前位置颜色", command = change_player_point_color, fg = '#11FBFF', font = ('华文楷体', 22))
-        change_player_point_colors.place(x = 50, y = 80)
+        change_player_point_colors =customtkinter.CTkButton(color_setting_window, text="更改玩家当前位置颜色", command = change_player_point_color, font = (title_font, title_size))
+        change_player_point_colors.place(relx=0.5, rely=relyi, anchor="center")
+        relyi += 0.1
 
-        change_player_path_colors =tk.Button(color_setting_window, text="更改玩家路径颜色", command = change_player_path_color, fg = '#11FBFF', font = ('华文楷体', 22))
-        change_player_path_colors.place(x = 50, y = 140)
+        change_player_path_colors =customtkinter.CTkButton(color_setting_window, text="更改玩家路径颜色", command = change_player_path_color, font = (title_font, title_size))
+        change_player_path_colors.place(relx=0.5, rely=relyi, anchor="center")
+        relyi += 0.1
 
-        change_astar_path_colors = tk.Button(color_setting_window, text="更改A*路径颜色", command = change_astar_path_color, fg = '#11FBFF', font = ('华文楷体', 22))
-        change_astar_path_colors.place(x = 50, y = 200)
+        change_astar_path_colors = customtkinter.CTkButton(color_setting_window, text="更改A*路径颜色", command = change_astar_path_color, font = (title_font, title_size))
+        change_astar_path_colors.place(relx=0.5, rely=relyi, anchor="center")
+        relyi += 0.1
         
-        change_labyrinth_backgroud_colors = tk.Button(color_setting_window, text="更改迷宫背景颜色", command = change_labyrinth_backgroud_color, fg = '#11FBFF', font = ('华文楷体', 22))
-        change_labyrinth_backgroud_colors.place(x = 50, y = 260)
+        change_labyrinth_backgroud_colors = customtkinter.CTkButton(color_setting_window, text="更改迷宫背景颜色", command = change_labyrinth_backgroud_color, font = (title_font, title_size))
+        change_labyrinth_backgroud_colors.place(relx=0.5, rely=relyi, anchor="center")
+        relyi += 0.1
 
-        change_labyrinth_wall_colors = tk.Button(color_setting_window, text="更改迷宫墙壁颜色", command = change_labyrinth_wall_color, fg = '#11FBFF', font = ('华文楷体', 22))
-        change_labyrinth_wall_colors.place(x = 50, y = 320)
+        change_labyrinth_wall_colors = customtkinter.CTkButton(color_setting_window, text="更改迷宫墙壁颜色", command = change_labyrinth_wall_color, font = (title_font, title_size))
+        change_labyrinth_wall_colors.place(relx=0.5, rely=relyi, anchor="center")
+        relyi += 0.1
     else:
         messagebox.showwarning("流程错误", "无法在生成迷宫后修改迷宫颜色")
 
 def change_root_backgroud_color():
     chosed_color = colorchooser.askcolor(title = "猛男就该用猛男粉!")
-    root.configure(bg = chosed_color[1])
+    if(chosed_color[1] != None):
+        root.configure(bg = chosed_color[1])
 
 def change_player_path_color():
     chosed_color = colorchooser.askcolor(title = "猛男就该用猛男粉!")
-    color_list[0] = chosed_color[1]
+    print(chosed_color)
+    if(chosed_color[1] != None):
+        color_list[0] = chosed_color[1]
 
 def change_player_point_color():
     chosed_color = colorchooser.askcolor(title = "猛男就该用猛男粉!")
-    color_list[1] = chosed_color[1]
+    if(chosed_color[1] != None):
+        color_list[1] = chosed_color[1]
 
 def change_astar_path_color():
     chosed_color = colorchooser.askcolor(title = "猛男就该用猛男粉!")
-    color_list[2] = chosed_color[1]
+    if(chosed_color[1] != None):
+        color_list[2] = chosed_color[1]
 
 def change_labyrinth_backgroud_color():
     chosed_color = colorchooser.askcolor(title = "猛男就该用猛男粉!")
-    color_list[3] = chosed_color[1]
+    if(chosed_color[1] != None):
+        color_list[3] = chosed_color[1]
 
 def change_labyrinth_wall_color():
     chosed_color = colorchooser.askcolor(title = "猛男就该用猛男粉!")
-    color_list[4] = chosed_color[1]
+    if(chosed_color[1] != None):
+        color_list[4] = chosed_color[1]
 
 def effect_sound_settings_window(event = 0):
     global effect_sound_setting_window
     if(flag[0] == 0):
-        # 创建设置窗口
         destory_window()
-        effect_sound_setting_window = tk.Toplevel(root)
-        effect_sound_setting_window.title("音效设置")
-        effect_sound_setting_window.geometry('380x220')
-        def effect_sound_setting_window_destroy(event = 0):
-            effect_sound_setting_window.destroy()
-        effect_sound_setting_window.bind("<Escape>", effect_sound_setting_window_destroy)
+        effect_sound_setting_window = ctktoplevel_frame(root, "音效设置")
+        effect_sound_setting_window.set_size(380, 220)
         
         def change_move_sound():
             flag[4] = 0
             get_sound()
-        change_window_backgroud_colors = tk.Button(effect_sound_setting_window, text="更改玩家移动音效", command = change_move_sound, fg = '#11FBFF', font = ('华文楷体', 22))
-        change_window_backgroud_colors.place(x = 50, y = 20)
+        rowi = 0
+        title_size = 25
+        change_window_backgroud_colors = customtkinter.CTkButton(effect_sound_setting_window, text="更改玩家移动音效", command = change_move_sound, font = (title_font, title_size))
+        change_window_backgroud_colors.grid(row = rowi, column = 0, padx=20, pady=15)
+        rowi += 1
         
         def change_pass_sound():
             flag[4] = 1
             get_sound()
-        change_player_point_colors =tk.Button(effect_sound_setting_window, text="更改玩家通关音效", command = change_pass_sound, fg = '#11FBFF', font = ('华文楷体', 22))
-        change_player_point_colors.place(x = 50, y = 80)
+        change_player_point_colors =customtkinter.CTkButton(effect_sound_setting_window, text="更改玩家通关音效", command = change_pass_sound, font = (title_font, title_size))
+        change_player_point_colors.grid(row = rowi, column = 0, padx=20, pady=15)
+        rowi += 1
 
     else:
         messagebox.showwarning("流程错误", "无法在生成迷宫后修改音效")
 
 def get_sound():
-    global var
-    effect_sound_get = tk.Toplevel(root)
-    effect_sound_get.title("音效选择")
-    effect_sound_get.geometry('420x420')
+    global effect_sound_get
+    effect_sound_get = ctktoplevel_frame(root, "音效选择")
+    effect_sound_get.set_size(800, 250)
     def confirm_sound():
-        sound_effect_apply[flag[4]] = var.get()
+        sound_dic = {"爆炸1":0, "爆炸2":1, "获得金币":2, "野 花 香":3, "浴霸":4}
+        sound_effect_apply[flag[4]] = sound_dic[sound.get()]
         effect_sound_get.destroy()
 
+    rowi = 0
+    title_size = 25
     if(flag[4] == 0):
-        current_sound_effect = tk.Label(effect_sound_get, text="当前玩家移动音效为:{}".format(sound_effect_list[sound_effect_apply[0]]), font=("华文楷体", 20)).place(x = 50, y = 20)
+        current_sound_effect = customtkinter.CTkLabel(effect_sound_get, text="当前玩家移动音效为:{}".format(sound_effect_list[sound_effect_apply[0]]), font=(title_font, title_size))
+        current_sound_effect.grid(row = rowi, column = 0, padx=20, pady=15)
     if(flag[4] == 1):
-        current_sound_effect = tk.Label(effect_sound_get, text="当前玩家通关音效为:{}".format(sound_effect_list[sound_effect_apply[1]]), font=("华文楷体", 20)).place(x = 50, y = 20)
-    var = tk.IntVar()
-    content_y = 60
-    tk.Radiobutton(effect_sound_get, text="爆炸1", variable=var, value=0,font = ('华文楷体', 22)).place(x = 50, y = content_y)
-    tk.Radiobutton(effect_sound_get, text="爆炸2", variable=var, value=1, font = ('华文楷体', 22)).place(x = 50, y = content_y + 60)
-    tk.Radiobutton(effect_sound_get, text="获得金币", variable=var, value=2, font = ('华文楷体', 22)).place(x = 50, y = content_y + 120)
-    tk.Radiobutton(effect_sound_get, text="野 花 香", variable=var, value=3, font = ('华文楷体', 22)).place(x = 50, y = content_y + 180)
-    tk.Radiobutton(effect_sound_get, text="浴霸", variable=var, value=4, font = ('华文楷体', 22)).place(x = 50, y = content_y + 240)
-    tk.Button(effect_sound_get, text="确认", command= confirm_sound, font = ('华文楷体', 22)).place(x = 50, y = content_y + 300)
+        current_sound_effect = customtkinter.CTkLabel(effect_sound_get, text="当前玩家通关音效为:{}".format(sound_effect_list[sound_effect_apply[1]]), font=(title_font, title_size))
+        current_sound_effect.grid(row = rowi, column = 0, padx=20, pady=15)
+    rowi += 1
+
+    sound = optionmenu_frame(effect_sound_get, "音效选择:", ["爆炸1", "爆炸2", "获得金币", "野 花 香", "浴霸"], "野 花 香")
+    sound.grid(row = rowi, column = 0, padx=20, pady=15)
+    rowi += 1
+
+    confrim_button = customtkinter.CTkButton(effect_sound_get, text="确认", command= confirm_sound, font = (title_font, title_size))
+    confrim_button.grid(row = rowi, column = 0, padx=20, pady=15)
+    rowi += 1
 
 def astar_settings_window(event = 0):
     global astar_sound_setting_window
     if(flag[0] == 0):
         # 创建设置窗口
         destory_window()
-        astar_sound_setting_window = tk.Toplevel(root)
-        astar_sound_setting_window.title("A*设置")
-        astar_sound_setting_window.geometry('480x220')
-        def astar_sound_setting_window_destroy(event = 0):
+        astar_sound_setting_window = ctktoplevel_frame(root, "A*设置")
+        astar_sound_setting_window.set_size(480, 220)
+
+        def confirm():
+            flag[5] = explor_var.get() + back_var.get()
+            print(flag[5])
             astar_sound_setting_window.destroy()
-        astar_sound_setting_window.bind("<Escape>", astar_sound_setting_window_destroy)
-        def confirm_astar(event = 0):
-            if(var1.get()):
-                flag[5] = 2
-            if(var2.get()):
-                flag[5] = 1
-            if(var1.get() and var2.get()):
-                flag[5] = 3
-            astar_sound_setting_window.destroy()
-        var1 = tk.IntVar()
-        var2 = tk.IntVar()
-        content_y = 60
+        rowi = 0
+        title_size = 25
         if(flag[5] == 0):
-            tk.Label(astar_sound_setting_window, text="当前状态:不显示动画", font=("华文楷体", 20)).place(x = 50, y = 20)
+            customtkinter.CTkLabel(astar_sound_setting_window, text="当前状态:不显示动画", font=(title_font, title_size)).grid(row = rowi, column = 0, padx=10, pady=10)
         elif(flag[5] == 1):
-            tk.Label(astar_sound_setting_window, text="当前状态:显示回溯动画", font=("华文楷体", 20)).place(x = 50, y = 20)
+            customtkinter.CTkLabel(astar_sound_setting_window, text="当前状态:显示回溯动画", font=(title_font, title_size)).grid(row = rowi, column = 0, padx=10, pady=10)
         elif(flag[5] == 2):
-            tk.Label(astar_sound_setting_window, text="当前状态:显示探索动画", font=("华文楷体", 20)).place(x = 50, y = 20)
+            customtkinter.CTkLabel(astar_sound_setting_window, text="当前状态:显示探索动画", font=(title_font, title_size)).grid(row = rowi, column = 0, padx=10, pady=10)
         elif(flag[5] == 3):
-            tk.Label(astar_sound_setting_window, text="当前状态:显示所有动画", font=("华文楷体", 20)).place(x = 50, y = 20)
-        tk.Checkbutton(astar_sound_setting_window, text="启用探索动画", variable=var1, font = ('华文楷体', 22)).place(x = 50, y = content_y)
-        tk.Checkbutton(astar_sound_setting_window, text="启用回溯动画", variable=var2,  font = ('华文楷体', 22)).place(x = 50, y = content_y + 60)
-        tk.Button(astar_sound_setting_window, text="确认", command= confirm_astar, font = ('华文楷体', 22)).place(x = 50, y = content_y + 120)
+            customtkinter.CTkLabel(astar_sound_setting_window, text="当前状态:显示所有动画", font=(title_font, title_size)).grid(row = rowi, column = 0, padx=10, pady=10)
+        rowi += 1
+        
+        explor_var = customtkinter.IntVar()
+        explor = customtkinter.CTkCheckBox(astar_sound_setting_window, text="启用探索动画", variable=explor_var, font = (title_font, title_size), onvalue=2, offvalue=0)
+        explor.grid(row = rowi, column = 0, padx=10, pady=10)
+        rowi += 1
+
+        back_var = customtkinter.IntVar()
+        back = customtkinter.CTkCheckBox(astar_sound_setting_window, text="启用回溯动画", variable=back_var, font = (title_font, title_size), onvalue=1, offvalue=0)
+        back.grid(row = rowi, column = 0, padx=10, pady=10)
+        rowi += 1
+
+        confrim_button = customtkinter.CTkButton(astar_sound_setting_window, text="确定", command=confirm)
+        confrim_button.grid(row = rowi, column = 0, padx=10, pady=10)
+        rowi+=1
     else:
         messagebox.showwarning("流程错误", "无法在生成迷宫后修改A*可见性")
 
@@ -1030,32 +1112,41 @@ def solve():
     init_setting()#初始化设置
     im = Image.new("RGB", ((width + 2) * size_list[0], (hight + 2) * size_list[0]), color_list[3])#创建一个背景图片white +2作为边界
     break_move = False; position[0] = 0; position[1] = 1#初始化起点
-    root = tk.Tk()#创建[根组件/窗口](空)
-    root.title("迷 宫 游 戏")#窗口名称
-    root.geometry(str(max((width + 2) * size_list[0] + 50, 600)) + 'x' + str(max((hight + 2) * size_list[0] + 50, 600)) + '+600' + '+200')#调整窗口大小('x') 位置('+' 第一个表示x 第二个表示y)
+    root = App()
+    root.set_size(str(max((width + 2) * size_list[0] + 50, 600)), str(max((hight + 2) * size_list[0] + 50, 600)), 600, 200)
+
+    global title_font, text_font, english_font
+    title_font = "design of class/fonts/NotoSerifSC-VariableFont_wght.ttf"
+    text_font = "华文楷体"
+    english_font = "design of class/fonts/Exo-VariableFont_wght.ttf"
+
     menu_bar = tk.Menu(root)#创建菜单栏(空)
     global algorithm_menu
-    algorithm_menu = tk.Menu(menu_bar, tearoff = 0)#创建菜单上的项目
+    algorithm_menu = tk.Menu(menu_bar, tearoff = 0, font=(english_font, 14))#创建菜单上的项目
+    algorithm_menu.config(font=(title_font, 16))
     init_algorithm_menu()#初始化项目
     menu_bar.add_cascade(label = "选择算法", menu = algorithm_menu)#添加显示
     global mode_menu
-    mode_menu = tk.Menu(menu_bar, tearoff = 0)
+    mode_menu = tk.Menu(menu_bar, tearoff = 0, font=(english_font, 14))
+    mode_menu.config(font=(title_font, 16))
     init_mode_menu()
     menu_bar.add_cascade(label = "选择模式", menu = mode_menu)
 
     global other_menu
-    other_menu = tk.Menu(menu_bar, tearoff = 0)
+    other_menu = tk.Menu(menu_bar, tearoff = 0, font=(english_font, 14))
+    other_menu.config(font=(title_font, 16))
     init_other_menu()
     menu_bar.add_cascade(label = "其他设置", menu = other_menu)
 
     global change_menu
-    change_menu = tk.Menu(menu_bar, tearoff = 0)
+    change_menu = tk.Menu(menu_bar, tearoff = 0, font=(english_font, 14))
+    change_menu.config(font=(title_font, 16))
     init_change_menu()
     menu_bar.add_cascade(label = "自定义设置", menu = change_menu)
 
     root.config(menu = menu_bar)#启用菜单栏
     game_loop()#启动更新循环
-    root.mainloop()#展示根组件
+    root.mainloop()#展示根组件bott
     pygame.quit()
     log_write_open.close()
     default_setting_read_open.close()
