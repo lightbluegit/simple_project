@@ -33,6 +33,7 @@ class entry_frame(customtkinter.CTkFrame):#输入框
 class radiobutton_frame(customtkinter.CTkFrame):#单选框
     def __init__(self, master, title, values, default_value = ''):
         super().__init__(master)
+        self.values = values
         self.title = title
         self.radiobuttons = []
         self.variable = customtkinter.StringVar(value=default_value)
