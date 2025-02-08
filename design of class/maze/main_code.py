@@ -1,6 +1,3 @@
-'''
-python课设
-'''
 import sys#加速!加速!
 import time#计时
 import random#random_dfs打乱方向列表
@@ -13,7 +10,7 @@ import customtkinter
 from customtkinter import CTkToplevel
 from datetime import datetime#获取日期
 from PIL import Image, ImageDraw, ImageTk#pillow库 绘图 将PIL的图片转为tkinter格式
-from tkinter import colorchooser, simpledialog, messagebox, StringVar#取色器 文本组件输入 输出 更新文本
+from tkinter import colorchooser, messagebox, StringVar#取色器 文本组件输入 输出 更新文本
 
 prefix = 'design of class/text/'
 log_path = prefix + 'log.txt'
@@ -38,15 +35,17 @@ flag = [0, 0, 0, 0, 0, 0]
 4:更改什么地方的音效(0:玩家移动音效 1:玩家通关音效)
 5:A*显示哪个路径 (0:不显示 1:显示最终路径 2:显示探索路径 3:显示所有路径)
 '''
+code_path = 'design of class/main_code.py'
 record_time = [0, 0]#记录玩家0:开始 1:结束游戏时间
 position = [0, 0]#玩家当前位置
 sound_effect_list = ["爆炸1.mp3", "爆炸2.mp3", "获得金币.mp3", "野!花!香!.mp3", "浴霸.wav"]#神金音效 哎 LDP
 sound_effect_apply = [3, 2]#0:玩家移动音效 1:玩家通关音效
+ctext_font = '华文楷体'; ctitle_font = '仿宋'
 
-def refresh(event = 0):
+def refresh(event):
     try:
         root.destroy()
-        subprocess.run(['python', 'design of class/main_code.py'])#下一关
+        subprocess.run(['python', code_path])#下一关
     except:
         pass
 
@@ -65,24 +64,35 @@ class ctktoplevel_frame(customtkinter.CTkToplevel):
         def destroy_window(event):
             self.destroy()
         self.bind("<Escape>", destroy_window)
-        self.bind('<F5>', refresh)
     
     def set_size(self, x, y, dx = 0, dy = 0):
         self.width = x
         self.high = y
         self.geometry("{}x{}+{}+{}".format(x, y, dx, dy))
 
-class radiobutton_frame(customtkinter.CTkFrame):
-    def __init__(self, master, values):
+class radiobutton_frame(customtkinter.CTkFrame):#单选框
+    def __init__(self, master, title, values, default_value = ''):
         super().__init__(master)
-        self.grid_columnconfigure(0, weight=1)
         self.values = values
+        self.title = title
         self.radiobuttons = []
-        self.variable = customtkinter.StringVar(value="")
+        self.variable = customtkinter.StringVar(value=default_value)
+
+        self.title = customtkinter.CTkLabel(self, text=self.title, fg_color="gray70", corner_radius=6, font=(ctitle_font, 24))
+        self.title.grid(row=0, column=0, padx=10, pady=5, sticky="w")
 
         for i, value in enumerate(self.values):
-            radiobutton = customtkinter.CTkRadioButton(self, text=value, value=value, font=(title_font, 25),variable=self.variable)
-            radiobutton.grid(row = i + 1, column = 0, padx=10, pady=5, sticky="w")
+            radiobutton = customtkinter.CTkRadioButton(
+                self,
+                text=value, 
+                value=value,
+                font=(ctext_font, 24),
+                variable=self.variable,
+                fg_color = '#BBFFFF',#选中颜色
+                hover_color='#F0FFF0',
+                border_color = '#7FFFD4',#未选中
+            )
+            radiobutton.grid(row = 0, column = i + 1, padx=10, pady=5, sticky="w")
             self.radiobuttons.append(radiobutton)
 
     def get(self):
@@ -92,17 +102,17 @@ class radiobutton_frame(customtkinter.CTkFrame):
         self.variable.set(value)
 
 class entry_frame(customtkinter.CTkFrame):#单选框
-    def __init__(self, master, title, placeholder_text = '', defalut_value = ''):
+    def __init__(self, master, title, placeholder_text = '', default_value = ''):
         super().__init__(master)
-        self.grid_columnconfigure(0, weight=1)
+        self.configure(fg_color = 'transparent')
         self.title = title
 
         self.title = customtkinter.CTkLabel(self, text=self.title, fg_color="gray70", corner_radius=6)
         self.title.grid(row=0, column=0, padx=10, pady=5, sticky="w")
 
         self.ctkentry = customtkinter.CTkEntry(self, placeholder_text = placeholder_text)
-        if defalut_value != '': self.ctkentry.insert(0, defalut_value)
-        self.ctkentry.grid(row = 0, column = 1, padx=10, pady=5, sticky="w")
+        if default_value != '': self.ctkentry.insert(0, default_value)
+        self.ctkentry.grid(row = 0, column = 1, padx=10, pady=5, sticky="nsew")
 
     def get(self):
         return self.ctkentry.get()
@@ -111,24 +121,25 @@ class entry_frame(customtkinter.CTkFrame):#单选框
         self.ctkentry.configure(width = width, height = height)
 
 class optionmenu_frame(customtkinter.CTkFrame):
-    def __init__(self, master, title,button_name, values, defalut_value = ''):
+    def __init__(self, master, title, button_name, values, default_value = ''):
         super().__init__(master)
-        self.grid_columnconfigure(0, weight=1)
         self.values = values
-        self.defalut_value = defalut_value
+        self.default_value = default_value
         self.title = title
         self.radiobuttons = []
-        self.variable = customtkinter.StringVar(value = defalut_value)
-        self.current = defalut_value
+        self.variable = customtkinter.StringVar(value = default_value)
 
         self.title = customtkinter.CTkLabel(self, text=self.title, fg_color="gray70", corner_radius=6)
         self.title.grid(row=0, column=0, padx=10, pady=5, sticky="w")
 
         self.option_menu = customtkinter.CTkOptionMenu(self, values = self.values, variable = self.variable, command= lambda x: self.click(button_name))
-        self.option_menu.grid(row = 0, column = 0, padx=10, pady=5)
+        self.option_menu.grid(row = 0, column = 1, padx=10, pady=5)
 
     def get(self):
         return self.variable.get()
+    
+    def set_size(self, width = 140, height = 28):
+        self.option_menu.configure(width = width, height = height)
     
     def click(self, button_name):
         if(button_name == '改音效'):
@@ -156,7 +167,7 @@ class optionmenu_frame(customtkinter.CTkFrame):
         
         if(button_name == '改大小'):#更改路径线条大小
             if(self.get() == '更改迷宫大小'):
-                size_entry = entry_frame(size_page, '输入迷宫大小:', '长(最多81)宽(最多135) 输入必须为正奇数 用空格分隔)\n当前迷宫长:{} 宽{}'.format(hight, width))
+                size_entry = entry_frame(size_page, '输入迷宫大小:', '长(最多81)宽(最多135) 输入奇数空格分隔)当前迷宫长:{} 宽{}'.format(hight, width))
 
             if(self.get() == '更改迷宫晶格大小'):
                 size_entry = entry_frame(size_page, '输入迷宫晶格大小:', '(范围6~15)\n当前路径尺寸大小:{} 当前迷宫晶格大小:{}'.format(size_list[1], size_list[0]))
@@ -173,7 +184,7 @@ class optionmenu_frame(customtkinter.CTkFrame):
             def confirm():
                 size_get = size_entry.get()#
                 if(self.get() == '更改迷宫大小'):
-                    global im
+                    global im,hight, width
                     hight, width = map(int, size_get.strip().split())
                     if(hight & 1 == 0 or width & 1 == 0):
                         messagebox.showwarning("输入错误", "请输入奇数 否则迷宫会很奇怪")
@@ -182,7 +193,7 @@ class optionmenu_frame(customtkinter.CTkFrame):
                         messagebox.showwarning("输入错误", "请输入合适范围的数字")
                         return
                     im = Image.new("RGB", ((width + 2) * size_list[0], (hight + 2) * size_list[0]), color_list[3])#创建一个背景图片white +2作为边界
-                    root.geometry(str(max((width + 2) * size_list[0] + 50, 600)) + 'x' + str(max((hight + 2) * size_list[0] + 50, 600)) + '+600' + '+200')
+                    root.set_size(str(max((width + 2) * (size_list[0] - 4) + 50, 600)), str(max((hight + 2) * (size_list[0] - 4) + 50, 600)) ,800, 200)
 
                 if(self.get() == '更改迷宫晶格大小'):
                     size_get = int(size_get)
@@ -208,18 +219,16 @@ class optionmenu_frame(customtkinter.CTkFrame):
             confirm_buttom = customtkinter.CTkButton(size_page, command = confirm, text='修改选中大小属性')
             confirm_buttom.place(relx=0.5, rely=0.45, anchor="center")
 
-
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
         self.title("迷 宫 游 戏")
-        self.grid_columnconfigure((0, 1), weight=1)
-        self.grid_rowconfigure(0, weight=1)
         self.bind('<F5>', refresh)
         self.bind("<Escape>", self.root_destroy)
     
     def root_destroy(self, event=None):
         self.destroy()
+    
     def set_size(self, x, y, dx, dy):
         self.width = x
         self.high = y
@@ -261,7 +270,7 @@ def init_setting():
     
     sys.setrecursionlimit(5000)#小心递归深度爆了 默认1000
 
-def reset_setting(event = 0):#event给个默认值不然只能响应快捷键
+def reset_setting(event = None):#event给个默认值不然只能响应快捷键
     global color_list, size_list, hight, width
     color_list_index = default_setting_read.index("color_list\n") + 1
     color_list = default_setting_read[color_list_index].strip().split(',')
@@ -335,7 +344,7 @@ def random_dfs_search(x, y, M):
             M[midx][midy] = ' '
             random_dfs_search(x + dx, y + dy, M)
 
-def random_dfs(event = 0):
+def random_dfs(event = None):
     global hight, width
     if(width * hight < 6e3):
         destory_window()
@@ -416,7 +425,7 @@ def recursive_division(start_x, start_y, end_x, end_y, M):
         recursive_division(start_x, split_y + 1, split_x - 1, end_y, M)
         recursive_division(split_x + 1, split_y + 1, end_x, end_y, M)
 
-def run_recursive_division(event = 0):
+def run_recursive_division(event = None):
     global visit
     destory_window()
     menu_bar.delete('选择算法')
@@ -491,7 +500,7 @@ def kruskal(M):
                 path_list[index1].append(i)
             del path_list[index2]
 
-def run_kruskal(event = 0):
+def run_kruskal(event = None):
     global visit
     destory_window()
     menu_bar.delete('选择算法')
@@ -575,7 +584,7 @@ def prim(M):
             visit.data[random_wall[0]][random_wall[1]] = 1
             M[random_wall[0]][random_wall[1]] = ' '
 
-def run_prim(event = 0):
+def run_prim(event = None):
     global hight, width
     if(hight * width < 6e3):
         global visit
@@ -623,7 +632,7 @@ def init_mode_menu():
     mode_menu.add_command(label = "A*速通", command = astar, accelerator = "Ctrl + a")
     root.bind("<Control-a>", astar)
 
-def on_key_event(event = 0):
+def on_key_event(event = None):
     if event.event_type == keyboard.KEY_DOWN:
         flag[1] = True
 
@@ -687,7 +696,7 @@ def press_move(event : tk.Event):
         draw.rectangle((position[0] * size_list[0] + decrease, position[1] * size_list[0] + decrease, position[0] * size_list[0] + plus, position[1] * size_list[0] + plus), fill = color_list[1])#表示当前位置
     
 
-def commen_mode(event = 0):
+def commen_mode(event = None):
     destory_window()
     menu_bar.delete('选择模式')
     flag[2] = 1
@@ -724,7 +733,7 @@ def draw_no_fog_circle():
         for x, y in move_path:
             draw_no_fog_circle_pos(x, y)
 
-def mouse_click_left(event = 0):
+def mouse_click_left(event = None):
     if(flag[2] == 2):
         draw = ImageDraw.Draw(im)#在im上绘画
         plus = (size_list[0] + size_list[1]) / 2
@@ -744,7 +753,7 @@ def mouse_click_left(event = 0):
             if(move_path[i][0] - move_path[i - 1][0] == -1):
                 draw.rectangle((x * size_list[0] + decrease, y * size_list[0] + decrease, (x + 1) * size_list[0] + plus, y * size_list[0] + plus), fill = color_list[0])
 
-def fog_mode(event = 0):
+def fog_mode(event = None):
     flag[2] = 2
     destory_window()
     menu_bar.delete('选择模式')
@@ -859,10 +868,13 @@ def astar_search(x, y, current_cost, pos_and_total_cost, go_back):
             draw.rectangle(((x - 1) * size_list[0] + decrease, y * size_list[0] + decrease, x * size_list[0] + plus, y * size_list[0] + plus), fill = color_list[2])
             astar_search(x - 1, y)'''
 
-def astar(event = 0):
+def astar(event = None):
     global astar_visit
     destory_window()
-    menu_bar.delete('选择模式')
+    try:
+        menu_bar.delete('选择模式')
+    except:
+        pass
     astar_visit = []
     current_cost = {(0, 1) : 0}#走到(x, y)需要的步数为x
     go_back = {}
@@ -875,7 +887,7 @@ def init_other_menu():
     root.bind("<Alt-b>", best_score)#严格区分大小写
     other_menu.add_separator() # 添加分隔线
 
-    def clean_log(event = 0):#记得加event = 0,不用都行
+    def clean_log(event = None):
         _ = open(log_path, 'w', encoding = "UTF-8")
     other_menu.add_command(label = "重置得分记录表", command = clean_log, accelerator = "Alt + c")
     root.bind("<Alt-c>", clean_log)
@@ -884,7 +896,7 @@ def init_other_menu():
     other_menu.add_command(label = "退出游戏", command = Break_move, accelerator = "Esc")#加入快捷键(只是个提示 实际效果要自己做)
     root.bind("<Escape>", Break_move)
 
-def best_score(event = 0):
+def best_score(event = None):
     log_read_open = open(log_path, 'r', encoding = "UTF-8")
     contents = log_read_open.readlines()
     max_score = 0
@@ -897,7 +909,7 @@ def best_score(event = 0):
         messagebox.showinfo("查找最高分", "暂无成绩")
     log_read_open.close()
 
-def Break_move(event = 0):
+def Break_move(event = None):
     global break_move
     break_move = 1
 
@@ -905,7 +917,12 @@ def Break_move(event = 0):
 def init_change_menu():
     global change_menu_window, effect_sound_page, size_page, color_page, astar_page
     change_menu_window = ctktoplevel_frame(root, "自定义设置")
-    change_menu_window.set_size(400, 350, 0, 0)
+    change_menu_window.set_size(400, 350, 150, 521)
+    def refresh_init_change_menu(event):
+        change_menu_window.destroy()
+        init_change_menu()
+    change_menu_window.bind("<F5>", refresh_init_change_menu)
+
     tab_window = customtkinter.CTkTabview(change_menu_window, width=300, height=200, corner_radius=10, fg_color="lightblue")
     tab_window.pack(fill="both", expand=True, padx=20, pady=20)
 
@@ -921,37 +938,33 @@ def init_change_menu():
     reset_buttom = customtkinter.CTkButton(tab_window, command = reset_setting, text='重置所有设置')
     reset_buttom.place(relx=0.15, rely=0.8, anchor="center")
 
-def size_settings_window(master, event = 0):#!askstring
-    if(flag[0] == 0):#玩家没有生成迷宫
-        size_change = optionmenu_frame(master, "选择要改变的大小属性:",'改大小', ["更改迷宫大小", "更改迷宫晶格大小", "更改路径线条大小", "更改迷雾可见半径大小"], "更改迷宫大小")
-        size_change.place(relx=0.5, rely=0.1, anchor="center")
-    else:
-        messagebox.showwarning("流程错误", "无法在生成迷宫后修改迷宫大小")
+def size_settings_window(master):
+    size_change = optionmenu_frame(master, "选择要改变的大小属性:",'改大小', ["更改迷宫大小", "更改迷宫晶格大小", "更改路径线条大小", "更改迷雾可见半径大小"])
+    size_change.configure(fg_color = 'transparent')
+    size_change.place(relx=0.5, rely=0.1, anchor="center")
 
-def color_settings_window(master, event = 0):
-    if(flag[0] == 0):
-        color_change = optionmenu_frame(master, "选择要改变的颜色属性:",'改颜色', ["更改窗口背景颜色", "更改玩家当前位置颜色", "更改玩家路径颜色", "更改A*路径颜色", '更改迷宫背景颜色', '更改迷宫墙壁颜色'], "更改窗口背景颜色")
-        color_change.place(relx=0.5, rely=0.1, anchor="center")
+def color_settings_window(master):
+    color_change = optionmenu_frame(master, "选择要改变的颜色属性:",'改颜色', ["更改窗口背景颜色", "更改玩家当前位置颜色", "更改玩家路径颜色", "更改A*路径颜色", '更改迷宫背景颜色', '更改迷宫墙壁颜色'], "更改窗口背景颜色")
+    color_change.configure(fg_color = 'transparent')
+    color_change.place(relx=0.5, rely=0.1, anchor="center")
 
-        def confirm():
-            color_attri = color_change.get()
-            if(color_attri == '更改窗口背景颜色'):
-                change_root_backgroud_color()
-            if(color_attri == '更改玩家当前位置颜色'):
-                change_player_point_color()
-            if(color_attri == '更改玩家路径颜色'):
-                change_player_path_color()
-            if(color_attri == '更改A*路径颜色'):
-                change_astar_path_color()
-            if(color_attri == '更改迷宫背景颜色'):
-                change_labyrinth_backgroud_color()
-            if(color_attri == '更改迷宫墙壁颜色'):
-                change_labyrinth_wall_color()
+    def confirm():
+        color_attri = color_change.get()
+        if(color_attri == '更改窗口背景颜色'):
+            change_root_backgroud_color()
+        if(color_attri == '更改玩家当前位置颜色'):
+            change_player_point_color()
+        if(color_attri == '更改玩家路径颜色'):
+            change_player_path_color()
+        if(color_attri == '更改A*路径颜色'):
+            change_astar_path_color()
+        if(color_attri == '更改迷宫背景颜色'):
+            change_labyrinth_backgroud_color()
+        if(color_attri == '更改迷宫墙壁颜色'):
+            change_labyrinth_wall_color()
 
-        confirm_buttom = customtkinter.CTkButton(master, command = confirm, text='修改选中颜色属性')
-        confirm_buttom.place(relx=0.5, rely=0.3, anchor="center")
-    else:
-        messagebox.showwarning("流程错误", "无法在生成迷宫后修改迷宫颜色")
+    confirm_buttom = customtkinter.CTkButton(master, command = confirm, text='修改选中颜色属性')
+    confirm_buttom.place(relx=0.5, rely=0.3, anchor="center")
 
 def change_root_backgroud_color():
     chosed_color = colorchooser.askcolor(title = "猛男就该用猛男粉!")
@@ -984,15 +997,16 @@ def change_labyrinth_wall_color():
     if(chosed_color[1] != None):
         color_list[4] = chosed_color[1]
 
-def effect_sound_settings_window(master, event = 0):
+def effect_sound_settings_window(master):
     global effect_sound_change, current_sound_effect
     effect_sound_change = optionmenu_frame(master, "选择要改变的音效属性:",'改音效', ["更改玩家移动音效", "更改玩家通关音效"])
+    effect_sound_change.configure(fg_color = 'transparent')
     effect_sound_change.place(relx=0.5, rely=0.1, anchor="center")
     
     current_sound_effect = customtkinter.CTkLabel(effect_sound_page, text="当前移动音效:{}".format(sound_effect_list[sound_effect_apply[0]][:-4:]), font=(title_font, 23))
     current_sound_effect.place(relx=0.5, rely=0.25, anchor="center")
 
-def astar_settings_window(master, event = 0):
+def astar_settings_window(master):
     def confirm():
         flag[5] = explor_var.get() + back_var.get()
         print(flag[5])
@@ -1033,7 +1047,7 @@ def solve():
     im = Image.new("RGB", ((width + 2) * size_list[0], (hight + 2) * size_list[0]), color_list[3])#创建一个背景图片white +2作为边界
     break_move = False; position[0] = 0; position[1] = 1#初始化起点
     root = App()
-    root.set_size(str(max((width + 2) * size_list[0] + 50, 600)), str(max((hight + 2) * size_list[0] + 50, 600)), 600, 200)
+    root.set_size(str(max((width + 2) * (size_list[0] - 4) + 50, 600)), str(max((hight + 2) * (size_list[0] - 4) + 50, 600)) ,800, 200)
 
     global title_font, text_font, english_font
     title_font = "design of class/fonts/NotoSerifSC-VariableFont_wght.ttf"
@@ -1069,5 +1083,4 @@ def solve():
 def main():
     solve()
 
-if __name__ == '__main__':
-    main()
+main()
