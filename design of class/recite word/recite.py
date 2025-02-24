@@ -1,12 +1,17 @@
 import sys
+from gtts import gTTS
+import pygame
+import tempfile
+import time
 import pyautogui
 import subprocess
 import random
 import customtkinter
 import tkinter as tk
-from tkinter import messagebox#design of class\recite word\recite.py
-code_path = 'design of class/recite word/recite.py'
-text_prefix = 'design of class/recite word/words data/'
+from tkinter import messagebox
+
+code_path = 'recite word/recite.py'
+text_prefix = 'recite word/words data/'
 words_path = text_prefix + 'words.txt'
 wrongs_path = text_prefix + 'wrong.txt'
 ctext_font = '华文楷体'; ctitle_font = '仿宋'
@@ -60,6 +65,7 @@ class App(customtkinter.CTk):#主窗口
 
         self.bind("<Escape>", root_destroy)
         self.bind('<F5>', refresh_root)
+        self.init_voice()
         pyautogui.moveTo(1438, 700)
         rowi = 0
         self.goal_word_num = 50
@@ -95,6 +101,11 @@ class App(customtkinter.CTk):#主窗口
         self.add_song.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
         rowi += 1
 
+    def init_voice(self):
+        pygame.init()
+        pygame.mixer.init(frequency=44100, buffer=1024)  # 专业音频参数
+        pygame.mixer.music.set_volume(0.7)  # 全局音量设置
+
     def set_size(self, x, y, dx, dy):
         self.width = x
         self.high = y
@@ -111,13 +122,13 @@ class App(customtkinter.CTk):#主窗口
         self.now_word_label.place(relx=0.5, rely=0.5, anchor="center")
         self.now_word_idx = -1; self.show_mode = 'w'#w:单词 w+m:单词意思 sa:成功加入错题集 wa:加入错题集失败
         
-        self.wrong_words_list = []
+        self.wrong_words_dic = {}
         self.wfo = open(wrongs_path, 'a+', encoding='utf-8')
         wfi = open(wrongs_path, 'r', encoding='utf-8')
         wrong_list = wfi.readlines()
         for wordi in wrong_list:#便于查找是否已存在
             word = wordi.split(':')
-            self.wrong_words_list.append(word[0])
+            self.wrong_words_dic[word[0]] = 1#{word:1}
 
         if(recite_mode == '随机排列'):
             random.shuffle(self.words_list)
@@ -126,15 +137,16 @@ class App(customtkinter.CTk):#主窗口
         self.bind("<Down>", self.show_mean)
         self.bind("<Left>", self.last_word)
         self.bind("<Right>", self.next_word)
+        self.bind("<v>", lambda event : self.speak_word_pygame(event,word=self.now_word))
 
     def add_wrong(self, event):
         if(self.show_mode == 'wa'):
             self.show_mode = 'w'
-        if(self.now_word in self.wrong_words_list):
+        if(self.wrong_words_dic.get(self.now_word, '无') != '无'):
             self.show_mode = 'wa'
         else:
             self.show_mode = 'sa'
-            self.wrong_words_list.append(self.now_word)
+            self.wrong_words_dic[self.now_word] = 1
             self.wfo.write(f'{self.now_word}:{self.now_mean}')
         self.change_word()
 
@@ -172,7 +184,28 @@ class App(customtkinter.CTk):#主窗口
         elif(self.show_mode == 'wa'):
             show_text = f'错误:{self.now_word}\n{self.now_mean}已在错题集'
         self.now_word_label.configure(text = f'{show_text}')
-
+    
+    def speak_word_pygame(self, event, word, lang='en'):
+        print("voice")
+        # 生成语音文件
+        tts = gTTS(text=word, lang=lang, slow=False)
+        
+        # 创建持久化临时文件（Windows/Linux兼容方案）
+        with tempfile.NamedTemporaryFile(mode='wb', suffix='.mp3', delete=False) as fp:
+            temp_path = fp.name
+            tts.save(temp_path)
+        
+        try:
+            # 加载并播放音频（支持MP3/AAC编码）
+            pygame.mixer.music.load(temp_path)
+            pygame.mixer.music.play()
+            
+            # 非阻塞等待播放完成（2025优化版）
+            while pygame.mixer.music.get_busy():
+                pygame.event.pump()  # 保持消息循环
+                time.sleep(0.02)  # 降低CPU占用
+        except:
+            print('error')
 root = App()
 root.set_size(550, 300, 1068, 600)
 root.mainloop()
