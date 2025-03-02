@@ -1,21 +1,20 @@
 '''
-phi完善
-去掉魔法数字
 加入曲绘图
-章节爬取
+将EZ IN分颜色输出
 '''
-import sys
+import re
 import heapq
 import time
 import xml.etree.ElementTree as ET
 from tkinter import messagebox
 import customtkinter as ctk
 import subprocess
-import pyautogui
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support import expected_conditions as EC
 py_path = 'rhythmgame_database/database.py'
 xmlpath = 'rhythmgame_database/phigros_data.xml'
 
@@ -61,10 +60,10 @@ class combobox_frame(ctk.CTkFrame):#下拉框+输入
             complex_name = self.get()
             bracket_idx = complex_name.rindex('(')
             name = complex_name[:bracket_idx:]
-            composer = complex_name[:bracket_idx + 1: -1]
+            composer = complex_name[bracket_idx + 1: -1:]
             print(name)
             print(composer)
-            song_info = phigros_root.get_song_data(name, composer)
+            song_info = phigros_root.get_song_data('name',(name, composer))
             avaliable_diff_list = []
             for diffi in phigros_root.diff_list:#按照频率排序 加进去的时候就是同样的顺序
                 if diffi not in song_info.keys():
@@ -348,13 +347,12 @@ class optionmenu_frame(ctk.CTkFrame):#下拉框
 
             if(seek_type in ['名称', '俗称']):
                 destroy_all(seek_type_choose)
-                phigros_root.get_song_list()
                 if(seek_type == '名称'):
                     seek_list = phigros_root.song_list
                 if(seek_type == '俗称'):
                     seek_list = phigros_root.nickname_list
 
-                select_song = combobox_frame(find_info_page, '选择要查找的歌曲', '查找歌曲', seek_list)
+                select_song = combobox_frame(find_info_page, f'选择要查找的歌曲{seek_type}', '查找歌曲', seek_list)
                 select_song.configure(fg_color = 'transparent')
                 select_song.set_size(230)
                 select_song.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
@@ -368,13 +366,13 @@ class optionmenu_frame(ctk.CTkFrame):#下拉框
                     select_song.option_menu.configure(values=filtered)
                 select_song.option_menu.bind("<KeyRelease>", filter_values)
             
-            if(seek_type in ['单曲rks', '定数', 'acc', '简评']):
+            if(seek_type in ['单曲rks', '定数', 'acc', '简评', '曲师', '章节']):
                 destroy_all(seek_type_choose)
                 global scroll_frame
                 scroll_frame = ctk.CTkScrollableFrame(find_info_page, width=460, height=320)
                 scroll_frame.configure(fg_color = 'transparent')
                 scroll_frame.grid(row = 4, column = 0, pady = 10, padx = 10, sticky = 'nsew')
-                if(seek_type != '简评'):
+                if(seek_type in ['单曲rks', '定数', 'acc']):
                     min_entry = entry_frame(find_info_page, '输入最小值:', default_value = '0')
                     min_entry.configure(fg_color = 'transparent')
                     min_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
@@ -384,59 +382,79 @@ class optionmenu_frame(ctk.CTkFrame):#下拉框
                     max_entry.configure(fg_color = 'transparent')
                     max_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
                     rowi +=  1
-                else:
-                    comment_entry = entry_frame(find_info_page, '输入简评:')
-                    comment_entry.configure(fg_color = 'transparent')
-                    comment_entry.set_size(260)
-                    comment_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+                elif(seek_type == '简评'):
+                    text_entry = entry_frame(find_info_page, '输入简评:')
+                    text_entry.configure(fg_color = 'transparent')
+                    text_entry.set_size(260)
+                    text_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
                     rowi +=  1
+                else:
+                    seek_list = phigros_root.composer_list
+                    text_entry = combobox_frame(find_info_page, f'选择要查找的{seek_type}', '查找曲师章节', seek_list)
+                    text_entry.configure(fg_color = 'transparent')
+                    text_entry.set_size(230)
+                    text_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+                    rowi += 1
+                    def filter_values(event):
+                        input_text = text_entry.get().strip().lower()
+                        if not input_text:
+                            text_entry.option_menu.configure(values=seek_list)
+                            return
+                        filtered = [item for item in seek_list if input_text in item.lower()]
+                        text_entry.option_menu.configure(values=filtered)
+                    text_entry.option_menu.bind("<KeyRelease>", filter_values)
+
                 def confirm():
                     try:
                         for widget in scroll_frame.winfo_children():
                             widget.destroy()
                     except:
                         print("控件销毁失败")
+                    last_page_button = ctk.CTkButton(find_info_page, text = '上一页', command=lambda x=0 : show_page(phigros_root.now_page - 1, find_rst_list, page_label), state="disabled")
+                    last_page_button.place(relx=0.25, rely=1.0, anchor="se", relwidth=0.25) 
+
+                    next_page_button = ctk.CTkButton(find_info_page, text = '下一页', command=lambda x=0 : show_page(phigros_root.now_page + 1, find_rst_list, page_label), state="normal")
+                    next_page_button.place(relx=0.75, rely=1.0, anchor="sw", relwidth=0.25) 
                     tree = ET.parse(xmlpath)
                     xmlroot = tree.getroot()
-                    if(seek_type != '简评'):
+                    if(seek_type in ['单曲rks', '定数', 'acc']):
                         minimum = float(min_entry.get())
                         maxmum = max_entry.get()
                     else:
-                        comment = comment_entry.get().strip().lower()
+                        text = text_entry.get().strip().lower()
+
                     if(seek_type == '定数'):
                         maxmum = float(maxmum) if maxmum != '' else 16.9
                     if(seek_type == 'acc'):
                         maxmum = float(maxmum) if maxmum != '' else 100
                     if(seek_type == '单曲rks'):
                         maxmum = float(maxmum) if maxmum != '' else 16.9
-                    if(seek_type == '简评'):
-                        pass
-                    find_rst_list = []
 
+                    find_rst_list = []
                     for idx in range(len(xmlroot)):
                         song_info = phigros_root.get_song_data('index', idx)
                         for diffi in phigros_root.diff_list:
                             if(diffi in song_info):
-                                if(seek_type != '简评' and minimum <= float(song_info[diffi][seek_type]) <= maxmum):
+                                acc = song_info[diffi]['acc']
+                                if(seek_type in ['单曲rks', '定数', 'acc'] and minimum <= float(song_info[diffi][seek_type]) <= maxmum):
                                     find_rst_list.append(((song_info['俗称'] 
     if (song_info['俗称'] != '无' and song_info['俗称'] is not None) 
-    else f'{song_info['名称']}({song_info['曲师']})')
-      + '-' + diffi, float(song_info[diffi][seek_type]) ))
+    else (f'{song_info['名称']}({song_info['曲师']})'))
+      + '-' + diffi + f'({acc})', float(song_info[diffi][seek_type]) ))
                                     
-                                elif(seek_type == '简评' and song_info[diffi][seek_type] is not None and song_info[diffi][seek_type] != '无' and comment in song_info[diffi][seek_type]):
+                                elif(seek_type == '简评' and song_info[diffi][seek_type] is not None and song_info[diffi][seek_type] != '无' and text in song_info[diffi][seek_type].lower()):
                                     find_rst_list.append((
     (song_info['俗称'] if (song_info['俗称'] != '无' and song_info['俗称'] is not None) 
     else f'{song_info['名称']}({song_info['曲师']})') 
     + '-' + diffi, song_info[diffi][seek_type] ))
+                        # print(f'输入{text}, 存储{song_info[seek_type]}')
+                        if(seek_type in ['曲师', '章节'] and song_info[seek_type] is not None and song_info[seek_type] != '无' and text in song_info[seek_type].lower()):
+                            find_rst_list.append((song_info[seek_type], song_info['名称']))
 
                     find_rst_list = sorted(find_rst_list, key=lambda x: x[1], reverse= True) if len(find_rst_list) else [('未找到','匹配结果')]
                     # print(find_rst_list)
                     rowi = 0
-                    # show_label_num_choose = optionmenu_frame(scroll_frame, '选择展示个数', '展示个数', ['10', '20', '30', '40','50'], '20')
-                    # show_label_num_choose.configure(fg_color = 'transparent')
-                    # show_label_num_choose.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')#位于
                     rowi += 1
-                    show_label_num = 20
                     total_page = (len(find_rst_list)//20 if len(find_rst_list)%20 == 0 else len(find_rst_list)//20 + 1)
                     def show_page(page, find_rst_list, page_label):
                         total_page = (len(find_rst_list)//20 if len(find_rst_list)%20 == 0 else len(find_rst_list)//20 + 1)
@@ -451,16 +469,12 @@ class optionmenu_frame(ctk.CTkFrame):#下拉框
                             label.grid(row=rowi, column=0, padx=10, pady=5, sticky="w")
                             rowi += 1
                         page_label.configure(text = f'当前页数:{phigros_root.now_page}/{total_page}')
+                        last_page_button.configure(state="normal" if phigros_root.now_page > 1 else "disabled")
+                        next_page_button.configure(state="normal" if phigros_root.now_page < total_page else "disabled")
                         
                     page_label = ctk.CTkLabel(find_info_page, text=f'当前页数:{phigros_root.now_page}/{total_page}', fg_color="#F0FFFF", corner_radius=6)
                     page_label.place(relx=0.5, rely=1.0, anchor="s") 
-
                     show_page(1, find_rst_list, page_label)
-                    last_page_button = ctk.CTkButton(find_info_page, text = '上一页', command=lambda x=0 : show_page(phigros_root.now_page - 1, find_rst_list, page_label), state="normal" if phigros_root.now_page > 1 else "disabled")
-                    last_page_button.place(relx=0.25, rely=1.0, anchor="se", relwidth=0.25) 
-
-                    next_page_button = ctk.CTkButton(find_info_page, text = '下一页', command=lambda x=0 : show_page(phigros_root.now_page + 1, find_rst_list, page_label), state="normal" if phigros_root.now_page <total_page else "disabled")
-                    next_page_button.place(relx=0.75, rely=1.0, anchor="sw", relwidth=0.25) 
                     
                 button = ctk.CTkButton(find_info_page, text = '查找选中歌曲', command = confirm)
                 button.grid(row = rowi, column = 0, pady = 10, padx = 10)
@@ -642,7 +656,7 @@ class phigros_data(ctk.CTk):
             "改": "📝 修改项目",
             '查': '🔎 查询项目',
             '更': '📤 更新数据',
-            '测' : 'test'
+            '测' : '测试模块'
         }
         for page_id, text in pages.items():
             btn = ctk.CTkButton(
@@ -677,18 +691,19 @@ class phigros_data(ctk.CTk):
 
     def grab_info(self):
         chrome_options = Options()
-        chrome_options.add_argument('--ignore-certificate-errors')  # 忽略证书错误
-        chrome_options.add_argument('--allow-running-insecure-content')  # 允许不安全内容
-
+        chrome_options.add_argument("--blink-settings=imagesEnabled=false")
+        
         driver = webdriver.Chrome(options=chrome_options)
         driver.get("https://mzh.moegirl.org.cn/Phigros/%E6%9B%B2%E7%9B%AE%E5%88%97%E8%A1%A8")#打开萌娘百科-phi-曲目列表
+        wait = WebDriverWait(driver, 2)
+        _ = wait.until(EC.presence_of_all_elements_located(
+            (By.CSS_SELECTOR, "div.mw-parser-output")
+        ))
         actions = ActionChains(driver)
         tree = ET.parse(xmlpath)
         xmlroot = tree.getroot()
         self.get_song_list()
         add_idx = len(xmlroot) + 1
-        process_tip_list = ['主线章节', '支线章节', '额外章节', '外传章节', '单曲', 'AT难度']#要改的
-        time.sleep(2)#等待网页加载
 
         ask_replace = False
         replace_ask = messagebox.askokcancel("", "当爬取数据与记录数据不同时是否询问?\n默认直接覆盖")
@@ -701,18 +716,25 @@ class phigros_data(ctk.CTk):
         def get_level_num(s):
             s = s.split('(')
             return s[1].replace(')', '')
-        
+        current_title = None
         for tableidx in range(5):#0主线章节 4单曲 5AT
             alltr = alltable[tableidx].find_elements(By.TAG_NAME, 'tr')
             high = alltable[tableidx].size["height"]
             for tridx in range(len(alltr)):
+                title_cell = alltr[tridx].find_elements(By.CSS_SELECTOR, "span.mw-headline")
+                if title_cell:
+                    # 更新当前标题
+                    current_title = title_cell[0].text
+                    # print(f'当前标题为:{current_title}')
+
                 alltd = alltr[tridx].find_elements(By.TAG_NAME, 'td')
                 lentd = len(alltd)#用td标签个数区分表头和要爬取的内容
                 # print(f'lentd={lentd}')
                 '''记录爬取数据'''
+                # if(lentd == 1 and .find_elements(By.CSS_SELECTOR, "span.mw-headline"))
                 if(tableidx < 4 and lentd == 7):#主线章节 支线章节 额外章节 外传章节的表格只有7个(标题 作者 BPM 难度 备注)
                     name = alltd[0].text
-                    composer = alltd[1].text
+                    composer = re.sub(r'\[\d+\]', '', alltd[1].text)
                     diff_ez = get_level_num(alltd[3].text)
                     diff_hd = get_level_num(alltd[4].text)
                     diff_in = get_level_num(alltd[5].text)
@@ -751,12 +773,11 @@ class phigros_data(ctk.CTk):
                             song_exist = True
                             song_idx = idxi
                 if(song_exist):
-                    print(f"歌曲{name}已存在")
-                    
+                    # print(f"歌曲{name}已存在")
                     song = xmlroot[song_idx]
-
                     composer_elm = song.find('曲师')
                     composer_elm.text = composer#曲师直接覆盖
+                    song.find('章节').text = current_title
 
                     if(song.find('EZ') == None):
                         add_diff = ET.SubElement(song, 'EZ')
@@ -843,14 +864,14 @@ class phigros_data(ctk.CTk):
                                 singal_rks_elm.text = singal_rks
                 
                 else:
-                    print(f"歌曲{name}不存在")
+                    # print(f"歌曲{name}不存在")
                     song = ET.SubElement(xmlroot, 'song')
                     song.attrib['id'] = f'{add_idx}'
                     add_idx += 1
                     ET.SubElement(song, '名称').text = name
                     ET.SubElement(song, '俗称').text = '无'
                     ET.SubElement(song, '曲师').text = composer
-                    ET.SubElement(song, '章节').text = '无'
+                    ET.SubElement(song, '章节').text = current_title
 
                     add_diff = ET.SubElement(song, 'EZ') 
                     ET.SubElement(add_diff, '定数').text = diff_ez
@@ -872,13 +893,18 @@ class phigros_data(ctk.CTk):
             
             actions.scroll_by_amount(0, high).perform() #移动1 对齐顶部 向下滑动 参数为 (x, y) 偏移量 
             time.sleep(0.5)
-            print(f'{process_tip_list[tableidx]}更新完成')
             tree.write(xmlpath, encoding = 'utf-8', xml_declaration = True)#更新完一段就写入 防止error
         self.get_song_list()
 
         '''爬AT难度的信息'''
         alltr = alltable[5].find_elements(By.TAG_NAME, 'tr')
         high = alltable[5].size["height"]
+        pure_name_list = []
+        tree = ET.parse(xmlpath)
+        xmlroot = tree.getroot()#如果前面加入了歌曲 沿用上方的xmlroot就会找不到新歌
+        for songi in xmlroot:
+            name = songi.find('名称').text
+            pure_name_list.append(name)
         for tridx in range(len(alltr)):
             alltd = alltr[tridx].find_elements(By.TAG_NAME, 'td')
             lentd = len(alltd)
@@ -888,10 +914,9 @@ class phigros_data(ctk.CTk):
                 diff_at = get_level_num(diff_at)
             else:
                 continue
-            complex_name = f'{name}({composer})'
-            if(complex_name in self.song_list):#不去重名:如果有重名存在 表格必然会给到曲师以区分
-                print(f"歌曲{name}已存在")
-                song_idx = self.song_list.index(name)
+            if(name in pure_name_list):#不去重名:如果有重名存在 表格必然会给到曲师以区分
+                # print(f"歌曲{name}已存在")
+                song_idx = pure_name_list.index(name)
                 song = xmlroot[song_idx]
                 if(song.find('AT') == None):
                     add_diff = ET.SubElement(song, 'AT')
@@ -920,11 +945,11 @@ class phigros_data(ctk.CTk):
                                 singal_rks = '0'
                             singal_rks_elm.text = singal_rks
             else:
-                print(f"歌曲{name}不存在?怎么可能...")
+                print(f"歌曲{complex_name}不存在?怎么可能...")
+        # print(self.song_list)
                 
         actions.scroll_by_amount(0, high).perform()  #移动1 对齐顶部 向下滑动 参数为 (x, y) 偏移量 
         time.sleep(0.5)
-        print(f'{process_tip_list[5]}更新完成')
         tree.write(xmlpath, encoding = 'utf-8', xml_declaration = True)
 
         driver.quit()
@@ -1025,6 +1050,8 @@ class phigros_data(ctk.CTk):
             if(chapter.text and chapter.text != '无'):
                 self.chapter_list.append(chapter.text)
         # print(self.nickname_dic)
+        self.composer_list = list(set(self.composer_list))
+        self.chapter_list = list(set(self.chapter_list))
 
     def valid_test(self, s_type, val):
         val = val.strip()
@@ -1071,17 +1098,20 @@ class phigros_data(ctk.CTk):
         for index in range(len(xmlroot)):
             song_info = self.get_song_data('index', index)
             name = song_info['名称']
+            nickname = song_info['俗称']
             composer = song_info['曲师']
             for diffi in self.diff_list:
                 if(diffi in song_info.keys()):
+                    acc = float(song_info[diffi]['acc'])
                     singal_rks = float(song_info[diffi]['单曲rks'])
-                    item = (singal_rks, f'{name}({composer})-{diffi}')
+                    item = (singal_rks, f'{nickname if nickname and nickname != '无' else name}({composer[:min(len(composer), 8):]})-{diffi}({acc}%)')
                     if len(b27_list) < 27:
                         heapq.heappush(b27_list, item)
                     else:
                         heapq.heappushpop(b27_list, item)  # 自动保留较大元素
-
-                    if(int(singal_rks) == 100):
+                    # if(name == '')
+                    if(int(acc) == 100):
+                        # print(name)
                         if len(phi3_list) < 3:
                             heapq.heappush(phi3_list, item)
                         else:
@@ -1110,7 +1140,7 @@ class phigros_data(ctk.CTk):
             phi3_song_label = ctk.CTkLabel(scroll_frame, text = '{}.{}:{}'.format(i + 1, phi3_list[i][1], phi3_list[i][0]), font = (ctext_font, 24), fg_color="#F0FFFF",width=400,anchor = 'w')
             phi3_song_label.grid(row = i + 30, column = 0, pady = 5, padx = 10, sticky = 'w')
             
-        rks_label = ctk.CTkLabel(scroll_frame, text = f'rks={rks/30}', font = (ctext_font, 28), fg_color="#F0FFFF",width=400,anchor = 'w')
+        rks_label = ctk.CTkLabel(scroll_frame, text = f'rks={round(rks/30, 4)}', font = (ctext_font, 28), fg_color="#F0FFFF",width=400,anchor = 'w')
         rks_label.grid(row = 0, column = 0, pady = 5, padx = 10, sticky = 'w')
 
     def add_attribution(self):
@@ -1287,8 +1317,9 @@ class phigros_data(ctk.CTk):
         find_info_page = tab_window.add('歌曲信息查找')
 
         rowi = 0
+        phigros_root.get_song_list()
         self.show_rks_compose(find_rks_page)
-        seek_type_choose = optionmenu_frame(find_info_page, '选择查找方式', '查找方式', ['名称','俗称', '单曲rks', '定数', 'acc', '简评'])
+        seek_type_choose = optionmenu_frame(find_info_page, '选择查找方式', '查找方式', ['名称','俗称', '曲师', '章节', '单曲rks', '定数', 'acc', '简评'])
         seek_type_choose.configure(fg_color = 'transparent')
         seek_type_choose.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
         rowi += 1
@@ -1304,3 +1335,8 @@ class phigros_data(ctk.CTk):
 phigros_root = phigros_data()
 phigros_root.set_size(800, 750, 860, 368)
 phigros_root.mainloop()
+'''
+爬取的网页中出现17(17.3)有效数字是17.3 但是存在只打左括号的情况
+用多行注释标识下面模块的作用
+rks组成用heap维护 防MLE 虽然只有1000的数据量(((
+'''
