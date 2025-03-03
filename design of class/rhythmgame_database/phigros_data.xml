@@ -13,8 +13,8 @@
     </IN>
     <AT>
       <定数>17.3</定数>
-      <acc>97.77</acc>
-      <单曲rks>15.6279</单曲rks>
+      <acc>97.79</acc>
+      <单曲rks>15.6425</单曲rks>
       <简评>无</简评>
     </AT>
     <EZ>
@@ -117,7 +117,7 @@
   <song id="4">
     <名称>Bounded Quietude</名称>
     <俗称>无</俗称>
-    <曲师>Finite Limit[9] vs SiLiS</曲师>
+    <曲师>Finite Limit vs SiLiS</曲师>
     <章节>2024年更新单曲</章节>
     <IN>
       <定数>16.2</定数>
@@ -831,7 +831,7 @@
   <song id="32">
     <名称>Upshift</名称>
     <俗称>无</俗称>
-    <曲师>Iriss-Frantzz[6]</曲师>
+    <曲师>Iriss-Frantzz</曲师>
     <章节>2023年更新单曲</章节>
     <IN>
       <定数>15.5</定数>
@@ -1555,8 +1555,8 @@
     </IN>
     <AT>
       <定数>17.0</定数>
-      <acc>97.03</acc>
-      <单曲rks>14.8301</单曲rks>
+      <acc>97.48</acc>
+      <单曲rks>15.1493</单曲rks>
       <简评>无</简评>
     </AT>
     <EZ>
@@ -2271,7 +2271,7 @@
   <song id="89">
     <名称>NYA!!!(Phigros ver.)</名称>
     <俗称>无</俗称>
-    <曲师>FLuoRiTe/姜米條[3]</曲师>
+    <曲师>FLuoRiTe/姜米條</曲师>
     <章节>Chapter 5 霓虹灯牌</章节>
     <EZ>
       <定数>2.0</定数>
@@ -3741,7 +3741,7 @@
   <song id="149">
     <名称>A journey to the moonlight</名称>
     <俗称>无</俗称>
-    <曲师>Yesod[4]</曲师>
+    <曲师>Yesod</曲师>
     <章节>Chapter Ex-OverRapid 精选集</章节>
     <EZ>
       <定数>4.5</定数>
@@ -4107,7 +4107,7 @@
   <song id="164">
     <名称>双重间谍 (Double Agent)</名称>
     <俗称>无</俗称>
-    <曲师>Wav.AV[5]</曲师>
+    <曲师>Wav.AV</曲师>
     <章节>Chapter Ex-节奏大师 精选集</章节>
     <EZ>
       <定数>4.5</定数>
@@ -5883,7 +5883,7 @@
   <song id="237">
     <名称>Silence is Golden, Speech is Golden</名称>
     <俗称>无</俗称>
-    <曲师>NIWASHI[7]</曲师>
+    <曲师>NIWASHI</曲师>
     <章节>2023年更新单曲</章节>
     <EZ>
       <定数>5.0</定数>
@@ -6337,7 +6337,7 @@
     </IN>
   </song>
   <song id="256">
-    <名称>贝多芬祝福 (Beethoven Blessing)[10]</名称>
+    <名称>贝多芬祝福 (Beethoven Blessing)</名称>
     <俗称>无</俗称>
     <曲师>Nauts</曲师>
     <章节>2025年更新单曲</章节>
