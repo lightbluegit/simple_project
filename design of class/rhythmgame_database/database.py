@@ -1,7 +1,11 @@
 '''
 加入曲绘图
-将EZ IN分颜色输出
-布局改成展示全部控件 等选择后更改值的形式
+CTkToolTip
+把所有的东西提前算好，等后续操作只需要布局 改一下其中的东西就行
+每个难度给到推分目标
+测试功能的时候打开软件就自动跳转到对应页面
+分析数据?
+优化结构
 '''
 import re
 import heapq
@@ -19,8 +23,9 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 py_path = 'rhythmgame_database/database.py'
 xmlpath = 'rhythmgame_database/phigros_data.xml'
+ctext_font = 'rhythmgame_database/fonts/NotoSerifSC-VariableFont_wght.ttf'
 
-ctext_font = '华文楷体'; ctitle_font = '仿宋'
+ctitle_font = '仿宋'
 
 class ctktoplevel_frame(ctk.CTkToplevel):
     def __init__(self, master, title):
@@ -39,22 +44,22 @@ class combobox_frame(ctk.CTkFrame):#下拉框+输入
     def __init__(self, master, title, button_name, values, default_value = ''):
         super().__init__(master)
         self.grid_columnconfigure(0, weight=1)
+        self.configure(height = 32, fg_color = "transparent")
         self.values = values
         self.default_value = default_value
         self.title = title
         self.variable = ctk.StringVar(value = default_value)
-
         self.title = ctk.CTkLabel(self, text=self.title, fg_color="#F0FFFF", corner_radius=6, font = (ctitle_font, 20))
-        self.title.grid(row=0, column=0, padx=10, pady=5, sticky="w")
+        self.title.grid(row=0, column=0, padx=10, pady=2, sticky="w")
 
         self.option_menu = ctk.CTkComboBox(self, values = self.values, variable = self.variable, command=lambda x: self.click(button_name), font = (ctext_font, 20))
-        self.option_menu.grid(row = 0, column = 1, padx=10, pady=5)
+        self.option_menu.grid(row = 0, column = 1, padx=10, pady=2)
         self.option_menu.configure(width = 300)
     
     def get(self):
         return self.option_menu.get()
     
-    def set_size(self, width = 300, height = 28):
+    def set_size(self, width = 300, height = 32):
         self.option_menu.configure(width = width, height = height)
     
     def click(self, button_name):
@@ -80,7 +85,6 @@ class combobox_frame(ctk.CTkFrame):#下拉框+输入
         if(button_name == '更改歌曲'):
             song_name = phigros_root.valid_test('曲名',self.get())
             phigros_root.tip_song = song_name
-            rowi = 1
             avaliable_diff_list = []
 
             tree = ET.parse(xmlpath)
@@ -90,141 +94,28 @@ class combobox_frame(ctk.CTkFrame):#下拉框+输入
             for diffi in phigros_root.diff_list:#按照频率排序 加进去的时候就是同样的顺序
                 if song.find(diffi) is not None:
                     avaliable_diff_list.append(diffi)
-            change_difflculty_choose = optionmenu_frame(phigros_root.content_frame, '选择更改的难度:','更改难度', avaliable_diff_list, avaliable_diff_list[0])
-            change_difflculty_choose.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
-            rowi += 1
-            phigros_root.tip_diff = avaliable_diff_list[0]
-            # print(change_difflculty_choose.get())
-
-            phigros_root.tip_attri = 'acc'
-            attribution_choose = optionmenu_frame(phigros_root.content_frame, '选择更改的属性:','更改属性', ('名称', '俗称', '曲师', '章节', '定数', 'acc', '简评'), phigros_root.tip_attri)
-            attribution_choose.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
-            rowi += 1
-            phigros_root.change_current_info()
             
-            global attribution_entry
-            attribution_entry = muti_entry_frame(phigros_root.content_frame, '输入更改值:')
-            attribution_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
-            rowi += 1
-
-            def song_click():
-                song_name = phigros_root.valid_test('曲名', self.get())
-                if(song_name == '无' or song_name not in phigros_root.song_list):
-                    messagebox.showerror('无效曲名', f'{song_name}不存在')
-                    return
-                attribution_type = attribution_choose.get()
-                difflculty = change_difflculty_choose.get()
-                attribution_value = attribution_entry.get()
-                diff_elm = song.find(difflculty)
-
-                if(attribution_type ==  '名称'):
-                    if(not attribution_value):
-                        messagebox.showwarning("名称错误","不能输入空白名称")
-                        return
-                    last_name = song.find(attribution_type).text
-                    messagebox.showinfo('更改',f'名称更改成功\n名称:{last_name}->{attribution_value}')
-                    song.find(attribution_type).text = attribution_value
-                    phigros_root.tip_song = f'{attribution_value}({song.find('曲师').text})'
-                    
-                elif(attribution_type ==  '俗称'):
-                    last_attri = song.find(attribution_type).text
-                    messagebox.showinfo('更改',f'俗称更改成功\n俗称:{last_attri}->{attribution_value}')
-                    song.find(attribution_type).text = attribution_value
-                
-                elif(attribution_type ==  '定数'):
-                    attribution_value = phigros_root.valid_test('定数', attribution_value)
-                    if(attribution_value == '无'): return
-                    messagebox.showinfo("更改",f"{song_name}({difflculty})定数:{diff_elm.find(attribution_type).text}->{attribution_value}")
-                    # fi = open('change.txt', 'a+', encoding='utf-8')
-                    # fi.write(f"{song_name}({difflculty}):{diff_elm[0].text}->{attribution_value}\n")#定数变化写入文件
-                    diff_elm.find(attribution_type).text = attribution_value
-                
-                elif(attribution_type ==  '曲师'):
-                    last_attri = song.find(attribution_type).text
-                    messagebox.showinfo('更改',f'曲师更改成功\n曲师:{last_attri}->{attribution_value}')
-                    song.find(attribution_type).text = attribution_value
-                    phigros_root.tip_song = f'{song.find('名称').text}({attribution_value})'
-
-                elif(attribution_type ==  '章节'):
-                    last_attri = song.find(attribution_type).text
-                    messagebox.showinfo('更改',f'章节更改成功\n章节:{last_attri}->{attribution_value}')
-                    song.find(attribution_type).text = attribution_value
-
-                elif(attribution_type ==  'acc'):
-                    attribution_value = phigros_root.valid_test('acc', attribution_value)
-                    if(attribution_value == '无'): return
-                    messagebox.showinfo("更改",f"{song_name}({difflculty})acc:{diff_elm.find(attribution_type).text}->{attribution_value}")
-                    diff_elm.find(attribution_type).text = attribution_value
-
-                elif(attribution_type ==  '简评'):
-                    diff_elm.find(attribution_type).text = attribution_value
-                    messagebox.showinfo("更改",f"{song_name}({difflculty})简评更改成功")
-
-                if(attribution_type in ['acc', '定数']):
-                    if(float(diff_elm.find('acc').text) >= 70):
-                        singal_rks = str(round(float(diff_elm.find('定数').text) * pow((float(diff_elm.find('acc').text) - 55) / 45, 2), 4))
-                    else:
-                        singal_rks = '0'
-                    diff_elm.find('单曲rks').text = singal_rks
-
-                tree.write(xmlpath, encoding = 'utf-8', xml_declaration = True)
-                phigros_root.get_song_list()
-                phigros_root.change_current_info()
-
-            confirm_button = ctk.CTkButton(phigros_root.content_frame, text = '更改选中歌曲信息', command = song_click)
-            confirm_button.grid(row = 6, column = 0, pady = 10, padx = 10)
+            phigros_root.tip_diff = avaliable_diff_list[0]
+            phigros_root.change_difflculty_choose.option_menu.configure(values = avaliable_diff_list, variable =ctk.StringVar(value = phigros_root.tip_diff))
+            
+            phigros_root.change_current_info()
 
         if(button_name == '删除歌曲'):
-            rowi = 1
+            '''响应选择选项 只起到一个根据输入更新控件内容的作用'''
             tree = ET.parse(xmlpath)
             xmlroot = tree.getroot()
             diff = []
+
             delete_song = self.get()
             if(delete_song in phigros_root.nickname_list):
                 delete_song = phigros_root.nickname_dic[delete_song]
-            if(delete_song not in phigros_root.song_list):
-                messagebox.showwarning('曲名错误', '无法找到该歌曲')
-                return
-            else:
-                song_idx = phigros_root.song_list.index(delete_song)
-            song = xmlroot[song_idx]
-            for diffi in range(2, len(song)):
-                diff.append(song[diffi].tag)
-            difficulty_choose = optionmenu_frame(phigros_root.content_frame, '选择难度(留空则删掉整首歌)','删除难度', tuple(diff))
-            difficulty_choose.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
-            rowi += 1
-
-            def delete_song_click():
-                delete_song = self.get()
-                if(delete_song in phigros_root.nickname_list):
-                    delete_song = phigros_root.nickname_dic[delete_song]
-                if(delete_song not in phigros_root.song_list):
-                    messagebox.showwarning('曲名错误', '无法找到该歌曲')
-                    return
-                else:
-                    song_idx = phigros_root.song_list.index(delete_song)
-                song = xmlroot[song_idx]
-
-                if(difficulty_choose.get() == ''):#没有指定难度 直接删掉整首歌
-                    messagebox.showinfo('删除歌曲',f"删除歌曲{delete_song}")
-                    delete_index = phigros_root.song_list.index(delete_song)
-                    print(f'删除{song.find('名称').text}')
-                    xmlroot.remove(song)
-                    for index in range(delete_index, len(xmlroot)):#更新索引
-                        xmlroot[index].attrib['id'] = f'{index}'
-                else:
-                    diffi = song.find(difficulty_choose.get())#指定删除的难度
-                    if(diffi ==  None):
-                        messagebox.showwarning("难度不存在",f'{delete_song}没有{difficulty_choose.get()}难度')
-                        return
-                    else:
-                        messagebox.showinfo('删除难度',f'删除难度{difficulty_choose.get()}')
-                        song.remove(diffi)
-                tree.write(xmlpath, encoding = 'utf-8', xml_declaration = True)
-                phigros_root.get_song_list()
             
-            confirm_button = ctk.CTkButton(phigros_root.content_frame, text = '删除选中歌曲的所选属性', command = delete_song_click)
-            confirm_button.grid(row = 3, column = 0, pady = 10, padx = 10)
+            song_idx = phigros_root.song_list.index(delete_song)
+            song = xmlroot[song_idx]
+            for diffi in phigros_root.diff_list:
+                if(song.find(diffi) is not None):
+                    diff.append(diffi)
+            phigros_root.difficulty_choose.option_menu.configure(values = tuple(diff))
 
         if(button_name == '查找歌曲'):
             rowi = 2
@@ -318,6 +209,7 @@ class optionmenu_frame(ctk.CTkFrame):#下拉框
     def __init__(self, master, title, button_name, values, default_value = ''):
         super().__init__(master)
         self.grid_columnconfigure(0, weight=1)
+        self.configure(height = 32, fg_color = "transparent")
         self.values = values
         self.default_value = default_value
         self.title = title
@@ -373,7 +265,14 @@ class optionmenu_frame(ctk.CTkFrame):#下拉框
                 global scroll_frame
                 scroll_frame = ctk.CTkScrollableFrame(find_info_page, width=460, height=320)
                 scroll_frame.configure(fg_color = 'transparent')
-                scroll_frame.grid(row = 4, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+                # scroll_frame.grid(row = 4, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+                scroll_frame.place(
+                    relx=0.01,    # X起始位置占窗口宽度的10%
+                    rely=0.35,    # Y起始位置占窗口高度的20%
+                    relwidth=0.95,  # 控件宽度随窗口宽度变化（始终维持80%）
+                    relheight=0.6, # 控件高度随窗口高度变化（始终维持60%）
+                    anchor="nw"    # 锚点控制延展方向（nw=左上角开始扩展）
+                )
                 if(seek_type in ['单曲rks', '定数', 'acc']):
                     min_entry = entry_frame(find_info_page, '输入最小值:', default_value = '0')
                     min_entry.configure(fg_color = 'transparent')
@@ -437,39 +336,53 @@ class optionmenu_frame(ctk.CTkFrame):#下拉框
                         song_info = phigros_root.get_song_data('index', idx)
                         for diffi in phigros_root.diff_list:
                             if(diffi in song_info):
-                                acc = song_info[diffi]['acc']
                                 if(seek_type in ['单曲rks', '定数', 'acc'] and minimum <= float(song_info[diffi][seek_type]) <= maxmum):
-                                    find_rst_list.append(((song_info['俗称'] 
-    if (song_info['俗称'] != '无' and song_info['俗称'] is not None) 
-    else (f'{song_info['名称']}({song_info['曲师']})'))
-      + '-' + diffi + f'({acc})', float(song_info[diffi][seek_type]) ))
+                                    find_rst_list.append((song_info, diffi, float(song_info[diffi][seek_type]) ))
                                     
                                 elif(seek_type == '简评' and song_info[diffi][seek_type] is not None and song_info[diffi][seek_type] != '无' and text in song_info[diffi][seek_type].lower()):
-                                    find_rst_list.append((
-    (song_info['俗称'] if (song_info['俗称'] != '无' and song_info['俗称'] is not None) 
-    else f'{song_info['名称']}({song_info['曲师']})') 
-    + '-' + diffi, song_info[diffi][seek_type] ))
+                                    find_rst_list.append((song_info, diffi, song_info[diffi][seek_type] ))
                         # print(f'输入{text}, 存储{song_info[seek_type]}')
                         if(seek_type in ['曲师', '章节'] and song_info[seek_type] is not None and song_info[seek_type] != '无' and text in song_info[seek_type].lower()):
-                            find_rst_list.append((song_info[seek_type], song_info['名称']))
-
-                    find_rst_list = sorted(find_rst_list, key=lambda x: x[1], reverse= True) if len(find_rst_list) else [('未找到','匹配结果')]
-                    # print(find_rst_list)
-                    rowi = 0
-                    rowi += 1
+                            find_rst_list.append((song_info, song_info['名称']))
+                    if(seek_type not in ['曲师', '章节']):
+                        find_rst_list = sorted(find_rst_list, key=lambda x: x[2], reverse= True)
+                    find_rst_list = find_rst_list if len(find_rst_list) else [('未找到','匹配结果')]
+                    
                     total_page = (len(find_rst_list)//20 if len(find_rst_list)%20 == 0 else len(find_rst_list)//20 + 1)
+
                     def show_page(page, find_rst_list, page_label):
-                        total_page = (len(find_rst_list)//20 if len(find_rst_list)%20 == 0 else len(find_rst_list)//20 + 1)
+                        # total_page = (len(find_rst_list)//20 if len(find_rst_list)%20 == 0 else len(find_rst_list)//20 + 1)
                         if(page == 0 or page > total_page): return
                         for widget in scroll_frame.winfo_children():
                             widget.destroy()
                         scroll_frame._parent_canvas.yview_moveto(0)
                         scroll_frame.update_idletasks()
                         rowi = 0; phigros_root.now_page = page
-                        for key, value in find_rst_list[(page - 1) * 20:min(len(find_rst_list), page * 20):]:
-                            label = ctk.CTkLabel(scroll_frame, text=f'{20 * (page-1)+rowi+1}.{key}:{value}', fg_color="#F0FFFF", corner_radius=6, width=300, anchor='w')
-                            label.grid(row=rowi, column=0, padx=10, pady=5, sticky="w")
+                        for i in find_rst_list[(page - 1) * 20:min(len(find_rst_list), page * 20):]:
+                            song_info = i[0]; diff = i[1]
+                            # print(f'dong={song_info}, diff={diff}')
+                            if(seek_type in ['单曲rks', '定数', 'acc', '简评']):
+                                main_info = song_info[diff][seek_type]
+                            else:
+                                main_info = song_info[seek_type]
+                            song_frame = expand_frame(scroll_frame, f'{20 * (page-1)+rowi+1}.{song_info['名称']}:{main_info}',text_color = phigros_root.diff_color[diff])
+                            # label = ctk.CTkLabel(scroll_frame, text=, fg_color="#F0FFFF", corner_radius=6, width=300, anchor='w')
+                            song_frame.grid(row=rowi, column=0, padx=10, pady=5, sticky="w")
                             rowi += 1
+
+                            show_name = song_info['俗称'] if song_info['俗称'] != '无' else song_info['名称']
+                            contain = {'名称': f'{show_name}', '曲师':f'{song_info['曲师']}' ,'章节': f'{song_info['章节']}'}
+                            if(seek_type in ['单曲rks', '定数', 'acc', '简评']):
+                                contain['难度'] = f'{diff}'
+                                contain['定数'] = f'{song_info[diff]['定数']}'
+                                contain['acc'] = f'{song_info[diff]['acc']}'
+                                contain[f'{seek_type}'] = main_info
+                            idx = 0
+                            for keyi, vali in contain.items():
+                                name_label = ctk.CTkLabel(song_frame.content_frame, text=f'{keyi}:{vali}', fg_color="#F0FFFF", corner_radius=6, width=300, anchor='w')
+                                name_label.grid(row=idx, column=0, padx=10, pady=5, sticky="w")
+                                idx += 1
+
                         page_label.configure(text = f'当前页数:{phigros_root.now_page}/{total_page}')
                         last_page_button.configure(state="normal" if phigros_root.now_page > 1 else "disabled")
                         next_page_button.configure(state="normal" if phigros_root.now_page < total_page else "disabled")
@@ -490,10 +403,11 @@ class optionmenu_frame(ctk.CTkFrame):#下拉框
             phigros_root.tip_diff = self.get()
             phigros_root.change_current_info()
 
-class entry_frame(ctk.CTkFrame):#单选框
+class entry_frame(ctk.CTkFrame):
     def __init__(self, master, title, placeholder_text = '', default_value = ''):
         super().__init__(master)
         self.grid_columnconfigure(0, weight=1)
+        self.configure(height = 32, fg_color = "transparent")
         self.title = title
 
         self.title = ctk.CTkLabel(self, text=self.title, fg_color="#F0FFFF", font = (ctitle_font, 20),corner_radius=6)
@@ -515,6 +429,7 @@ class muti_entry_frame(ctk.CTkFrame):
     def __init__(self, master, title, placeholder_text=''):
         super().__init__(master)
         self.grid_columnconfigure(0, weight=1)
+        self.configure(height = 32, fg_color = "transparent")
 
         # 标题标签（增加行距设置）
         self.title = title
@@ -554,7 +469,7 @@ class muti_entry_frame(ctk.CTkFrame):
         content = self.ctktext.get("0.0", "end-1c")
         return content.strip()
     
-    def set_size(self, width=150, height=32):
+    def set_size(self, width=250, height=32):
         """动态设置尺寸（支持百分比）"""
         self.ctktext.configure(
             width=width if isinstance(width, int) else f"{width}%",
@@ -583,13 +498,13 @@ class muti_entry_frame(ctk.CTkFrame):
         self.geometry("{}x{}+{}+{}".format(x, y, dx, dy))
 
 class expand_frame(ctk.CTkFrame):
-    def __init__(self, master, title, is_expanded = False):
+    def __init__(self, master, title, is_expanded = False, text_color = 'black'):
         super().__init__(master)
         
         # 控制展开状态的变量
         self.is_expanded = is_expanded
         self.title = title
-        self.configure(border_width = 2, border_color = '#FFF5EE')
+        self.configure(border_width = 4, border_color = '#FFF5EE', fg_color = '#fffef5')
         
         # 创建标题按钮
         self.grid_columnconfigure(0, weight=1)  # 主窗口第0列可扩展
@@ -599,14 +514,14 @@ class expand_frame(ctk.CTkFrame):
             command=self.toggle,
             anchor="w",
             fg_color="transparent",
-            text_color='black',
-            font=(ctitle_font, 35),
+            text_color=text_color,
+            font=(ctitle_font, 25),
             hover=False
         )
         self.header_button.grid(row=0, column=0, sticky="ew",padx=2, pady=2)
         
         # 创建内容区域
-        self.content_frame = ctk.CTkFrame(self, fg_color='#E0FFFF', corner_radius = 0, width=self.winfo_width()-4)#
+        self.content_frame = ctk.CTkFrame(self, fg_color='#E0FFFF', corner_radius = 0)#
         
         # 初始隐藏内容
         self.content_frame.grid(row=1, column=0, sticky="ew",padx=2, pady=2)
@@ -631,6 +546,7 @@ class phigros_data(ctk.CTk):
         
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
+        self.configure(fg_color = '#FFF5EE')
         self.sidebar_expanded = True
         self.current_page = ""
         self.title("phigros数据库")
@@ -646,7 +562,8 @@ class phigros_data(ctk.CTk):
         
         self.create_sidebar()
         self.content_frame = ctk.CTkFrame(self)
-        self.content_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
+        self.content_frame.grid(row=0, column=1, sticky="nsew", padx=3, pady=0)
+        self.content_frame.configure(fg_color = '#F0FFF0')
         self.pages = {
             "增": self.add_attribution,
             "删": self.delete_attribution,
@@ -659,6 +576,7 @@ class phigros_data(ctk.CTk):
         self.tip_song = ''; self.tip_attri = ''; self.tip_diff = ''
         self.diff_list = ['AT', 'IN', 'HD','EZ']
         self.addable_song = {}
+        self.diff_color = {'AT':'#FF69B4', 'IN':'#00FFFF', 'HD':'#00FA9A','EZ':'#FFEBA3'}
         
         tree = ET.parse(xmlpath)
         xmlroot = tree.getroot()
@@ -757,7 +675,7 @@ class phigros_data(ctk.CTk):
         self.nickname_list = []
         self.nickname_dic = {} #俗称:名称
         self.composer_list = []
-        self.chapter_list = []
+        self.chapter_list = ['无']
         for songi in xmlroot:
             composer = songi.find('曲师')
             if(composer.text and composer.text != '无'):
@@ -817,6 +735,7 @@ class phigros_data(ctk.CTk):
         """创建基本侧边栏框架"""
         self.sidebar_frame = ctk.CTkFrame(self)
         self.sidebar_frame.grid(row=0, column=0, sticky="nsew")
+        self.sidebar_frame.configure(fg_color = '#F0FFFF')
         
         # 折叠按钮
         rowi =0
@@ -840,7 +759,7 @@ class phigros_data(ctk.CTk):
         }
 
         icon_prefix = 'rhythmgame_database/icons/'
-        icon_path = ['add song.png', 'change song.png', 'delete song.png','find song.png','grab.png','test.png']
+        icon_path = ['add song.png', 'delete song.png', 'change song.png','find song.png','grab.png','test.png']
         idx = 0
         for page_id, text in pages.items():
             icon_image = ctk.CTkImage(
@@ -859,6 +778,15 @@ class phigros_data(ctk.CTk):
             btn.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
             rowi += 1
             self.nav_buttons[page_id] = btn
+        self.nav_buttons['测'].grid_remove()
+        self.show_test = False
+        def show_test_part(event):
+            if(self.show_test):
+                self.nav_buttons['测'].grid_remove()
+            else:
+                self.nav_buttons['测'].grid()
+            self.show_test = not self.show_test
+        self.bind("<Shift-L>",show_test_part)
 
     def toggle_sidebar(self):
         """切换侧边栏状态"""
@@ -882,12 +810,13 @@ class phigros_data(ctk.CTk):
 
 
     def add_attribution(self):
+        self.title("phigros数据库-新增项目")
         rowi = 0
         song_values = list(self.addable_song.keys())
         # print(song_values)
         self.get_song_list()
-        self.song_name_choose = combobox_frame(self.content_frame, '歌曲名称/俗称', '添加歌曲', song_values)
-        self.song_name_choose.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+        self.song_name_choose = combobox_frame(self.content_frame, '歌曲名称/俗称*', '添加歌曲', song_values)
+        self.song_name_choose.grid(row = rowi, column = 0, pady = 5, padx = 10, sticky = 'nsew')
         rowi += 1
         def filter_values(event):#模糊搜索 过滤结果
             input_text = self.song_name_choose.get().strip().lower()
@@ -899,31 +828,32 @@ class phigros_data(ctk.CTk):
         self.song_name_choose.option_menu.bind("<KeyRelease>", filter_values)
         
         nickname_entry = entry_frame(self.content_frame, '歌曲俗称:', '儿童鞋垫')
-        nickname_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+        nickname_entry.grid(row = rowi, column = 0, pady = 5, padx = 10, sticky = 'nsew')
         rowi +=  1
 
-        self.composer_choose = combobox_frame(self.content_frame, '曲师','增加曲师', self.composer_list)
-        self.composer_choose.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+        self.composer_choose = combobox_frame(self.content_frame, '曲师*','增加曲师', self.composer_list)
+        self.composer_choose.grid(row = rowi, column = 0, pady = 5, padx = 10, sticky = 'nsew')
         rowi +=  1
 
-        self.chapter_choose = optionmenu_frame(self.content_frame, '章节名称','增加章节', self.chapter_list)
-        self.chapter_choose.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+        self.chapter_choose = optionmenu_frame(self.content_frame, '章节名称','增加章节', self.chapter_list, '无')
+        self.chapter_choose.grid(row = rowi, column = 0, pady = 5, padx = 10, sticky = 'nsew')
         rowi +=  1
 
-        self.difficulty_choose = optionmenu_frame(self.content_frame, '歌曲难度','增加难度', ('AT', 'IN', 'HD', 'EZ'), 'IN')
-        self.difficulty_choose.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+        self.difficulty_choose = optionmenu_frame(self.content_frame, '歌曲难度*','增加难度', ('AT', 'IN', 'HD', 'EZ'), 'IN')
+        self.difficulty_choose.grid(row = rowi, column = 0, pady = 5, padx = 10, sticky = 'nsew')
         rowi +=  1
 
-        level_entry = entry_frame(self.content_frame, '歌曲定数:', '11.3')
-        level_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+        level_entry = entry_frame(self.content_frame, '歌曲定数*', '11.3')
+        level_entry.grid(row = rowi, column = 0, pady = 5, padx = 10, sticky = 'nsew')
         rowi +=  1
 
-        accuracy_entry = entry_frame(self.content_frame, 'acc:', '98.6')
-        accuracy_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+        accuracy_entry = entry_frame(self.content_frame, 'acc*', '98.6')
+        accuracy_entry.grid(row = rowi, column = 0, pady = 5, padx = 10, sticky = 'nsew')
         rowi +=  1
 
-        song_text_entry = muti_entry_frame(self.content_frame, '简评一下:', '先生 买朵花吗~?')
-        song_text_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+        comment_placeholder_text = '先生 买朵花吗~?'
+        comment_entry = muti_entry_frame(self.content_frame, '简评一下:', comment_placeholder_text)
+        comment_entry.grid(row = rowi, column = 0, pady = 5, padx = 10, sticky = 'nsew')
         rowi +=  1
 
         def get_data():
@@ -931,16 +861,18 @@ class phigros_data(ctk.CTk):
             xmlroot = tree.getroot()
             
             song_name = self.valid_test('曲名', self.song_name_choose.get())
-            level = self.valid_test('定数', level_entry.get())
-            accuracy = self.valid_test('acc', accuracy_entry.get())
-            if((song_name or level or accuracy) == '无'):
-                return
-            
-            difficulty = self.difficulty_choose.get()
             nickname = self.valid_test('俗名', nickname_entry.get())#self.valid_test('', )
-            song_text = self.valid_test('简评', song_text_entry.get())
             composer = self.valid_test('曲师', self.composer_choose.get())
             chapter = self.valid_test('章节', self.chapter_choose.get())
+            difficulty = self.difficulty_choose.get()
+            level = self.valid_test('定数', level_entry.get())
+            accuracy = self.valid_test('acc', accuracy_entry.get())
+            comment = self.valid_test('简评', comment_entry.get())
+            if(comment == comment_placeholder_text):
+                comment = '无'
+            if('无' in (song_name, level, accuracy, composer)): 
+                messagebox.showerror('输入缺失', '缺少带*的必要输入')
+                return
 
             if(song_name in phigros_root.song_list):#已有歌曲新差分
                 print(f'{song_name}已经在列表中,差分')
@@ -952,8 +884,9 @@ class phigros_data(ctk.CTk):
                     return
             else:
                 print(f'新建歌曲{song_name}')
-                add_song = ET.SubElement(xmlroot, 'song')
-                add_song.attrib['id'] = f'{len(xmlroot)}'
+                new_id = len(xmlroot)
+                add_song = ET.SubElement(xmlroot, 'song')#若是在下面len的话会多算已经创建的这个 导致id多+1
+                add_song.attrib['id'] = f'{new_id}'
                 ET.SubElement(add_song, '名称').text = song_name
                 ET.SubElement(add_song, '俗称').text = nickname
                 ET.SubElement(add_song, '曲师').text = composer
@@ -966,7 +899,7 @@ class phigros_data(ctk.CTk):
                 ET.SubElement(chafen, '单曲rks').text = '0'
             else:
                 ET.SubElement(chafen, '单曲rks').text = str(round(float(level) * pow((float(accuracy) - 55) / 45, 2), 4))
-            ET.SubElement(chafen, '简评').text = song_text
+            ET.SubElement(chafen, '简评').text = comment
             # 写回文件，覆盖原文件
             messagebox.showinfo("",f'{song_name}成功加入数据库')
             tree.write(xmlpath, encoding = 'utf-8', xml_declaration = True)
@@ -978,17 +911,58 @@ class phigros_data(ctk.CTk):
 
     def delete_attribution(self):
         rowi = 0
-        phigros_root.get_song_list()
-        select_song = combobox_frame(self.content_frame, '选择要删除的歌曲','删除歌曲', phigros_root.song_list)
+        self.title("phigros数据库-删除项目")
+        self.get_song_list()
+        select_song = combobox_frame(self.content_frame, '选择要删除的歌曲','删除歌曲', self.song_list)
         def filter_values(event):
             input_text = select_song.get().strip().lower()
             if not input_text:
-                select_song.option_menu.configure(values=phigros_root.song_list)
+                select_song.option_menu.configure(values=self.song_list)
                 return
-            filtered = [item for item in (phigros_root.song_list + phigros_root.nickname_list) if input_text in item.lower()]
+            filtered = [item for item in (self.song_list + self.nickname_list) if input_text in item.lower()]
             select_song.option_menu.configure(values=filtered)
         select_song.option_menu.bind("<KeyRelease>", filter_values)
         select_song.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+        rowi += 1
+
+        self.difficulty_choose = optionmenu_frame(self.content_frame, '选择难度(留空则删掉整首歌)','删除难度', self.diff_list)
+        self.difficulty_choose.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+        rowi += 1
+
+        def delete_song_click():
+            tree = ET.parse(xmlpath)
+            xmlroot = tree.getroot()
+            delete_song = select_song.get()#玩家可能选择后又进行了输入
+            if(delete_song in self.nickname_list):
+                delete_song = self.nickname_dic[delete_song]
+            if(delete_song not in self.song_list):
+                messagebox.showwarning('曲名错误', '无法找到该歌曲')
+                return
+            else:
+                song_idx = self.song_list.index(delete_song)
+            song = xmlroot[song_idx]
+            diff = self.difficulty_choose.get()
+
+            if(diff == ''):#没有指定难度 直接删掉整首歌
+                messagebox.showinfo('删除歌曲',f"删除歌曲{delete_song}")
+                print(f'删除{song.find('名称').text}')
+                xmlroot.remove(song)
+                for index in range(song_idx, len(xmlroot)):#更新索引
+                    xmlroot[index].attrib['id'] = f'{index}'
+            else:
+                diffi = song.find(diff)#指定删除的难度
+                if(diffi == None):
+                    messagebox.showwarning("难度不存在", f'{delete_song} 没有{diff}难度')
+                    return
+                else:
+                    messagebox.showinfo('删除难度', f'删除难度{diff}')
+                    song.remove(diffi)
+
+            tree.write(xmlpath, encoding = 'utf-8', xml_declaration = True)
+            self.get_song_list()
+            
+        self.confirm_button = ctk.CTkButton(self.content_frame, text = '删除选中歌曲的所选属性', command=delete_song_click)
+        self.confirm_button.grid(row = rowi, column = 0, pady = 10, padx = 10)
         rowi += 1
 
 
@@ -1001,6 +975,7 @@ class phigros_data(ctk.CTk):
         # print(self.tip_attri)
         song_idx = self.song_list.index(self.tip_song)
         songi = xmlroot[song_idx]
+        phigros_root.attribution_entry.ctktext.delete("0.0", "end")
         if(self.tip_attri in ['定数', 'acc', '简评']):
             diff = songi.find(self.tip_diff)
             singal_rks = diff.find('单曲rks').text#.find('')
@@ -1009,9 +984,8 @@ class phigros_data(ctk.CTk):
             if(self.tip_attri == 'acc'):
                 show_text = diff.find('acc').text
             if(self.tip_attri == '简评'):
-                attribution_entry.ctktext.delete("0.0", "end")
                 show_text = diff.find('简评').text
-                attribution_entry.ctktext.insert("0.0", show_text if show_text else '无')
+                phigros_root.attribution_entry.ctktext.insert("0.0", show_text if show_text else '无')
             show_text += f'\n单曲rks:{singal_rks}'
         else:
             if(self.tip_attri == '名称'):
@@ -1030,9 +1004,11 @@ class phigros_data(ctk.CTk):
         phigros_root.update()
 
     def change_attribution(self):
+        self.title("phigros数据库-更改项目")
         rowi = 0
         phigros_root.get_song_list()
         self.select_song_choose = combobox_frame(self.content_frame, '选择更改的歌曲:','更改歌曲', phigros_root.song_list)
+        self.select_song_choose.set_size(width=500)
         self.select_song_choose.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
         rowi += 1
         def filter_values(event = None):
@@ -1043,9 +1019,99 @@ class phigros_data(ctk.CTk):
             filtered = [item for item in (phigros_root.song_list + phigros_root.nickname_list) if input_text in item.lower()]
             self.select_song_choose.option_menu.configure(values=filtered)
         self.select_song_choose.option_menu.bind("<KeyRelease>", filter_values)
+
+        self.change_difflculty_choose = optionmenu_frame(phigros_root.content_frame, '选择更改的难度:','更改难度', self.diff_list, self.diff_list[0])
+        self.change_difflculty_choose.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+        rowi += 1
+
+        phigros_root.tip_attri = 'acc'
+        self.attribution_choose = optionmenu_frame(phigros_root.content_frame, '选择更改的属性:','更改属性', ('名称', '俗称', '曲师', '章节', '定数', 'acc', '简评'), phigros_root.tip_attri)
+        self.attribution_choose.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+        rowi += 1
         
-        self.change_attribution_window_tips = ctk.CTkLabel(self.content_frame, text = '', fg_color="transparent")
-        self.change_attribution_window_tips.grid(row = 5, column = 0, pady = 10, padx = 10)
+        self.attribution_entry = muti_entry_frame(phigros_root.content_frame, '输入更改值:')
+        self.attribution_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+        rowi += 1
+        
+        self.change_attribution_window_tips = ctk.CTkLabel(self.content_frame,text = '', font=(ctext_font, 25), fg_color="transparent")
+        self.change_attribution_window_tips.grid(row = rowi, column = 0, pady = 5, padx = 10)
+        rowi += 1
+
+        def song_click():
+            song_name = phigros_root.valid_test('曲名', self.select_song_choose.get())
+            if(song_name == '无' or song_name not in phigros_root.song_list):
+                messagebox.showerror('无效曲名', f'{song_name}不存在')
+                return
+            
+            tree = ET.parse(xmlpath)
+            xmlroot = tree.getroot()
+            song_idx = phigros_root.song_list.index(song_name)
+            song = xmlroot[song_idx]
+            difflculty = self.change_difflculty_choose.get()
+            diff_elm = song.find(difflculty)
+            attribution_type = self.attribution_choose.get()
+            if(attribution_type in ['定数', 'acc', '简评'] and diff_elm is None):
+                messagebox.showwarning('', f'{song_name}没有难度{difflculty}')
+                return
+            
+            attribution_value = self.attribution_entry.get()
+
+            if(attribution_type ==  '名称'):
+                if(not attribution_value):
+                    messagebox.showwarning("名称错误","不能输入空白名称")
+                    return
+                last_name = song.find(attribution_type).text
+                messagebox.showinfo('更改',f'名称更改成功\n名称:{last_name}->{attribution_value}')
+                song.find(attribution_type).text = attribution_value
+                phigros_root.tip_song = f'{attribution_value}({song.find('曲师').text})'
+                
+            elif(attribution_type ==  '俗称'):
+                last_attri = song.find(attribution_type).text
+                messagebox.showinfo('更改',f'俗称更改成功\n俗称:{last_attri}->{attribution_value}')
+                song.find(attribution_type).text = attribution_value
+            
+            elif(attribution_type ==  '定数'):
+                attribution_value = phigros_root.valid_test('定数', attribution_value)
+                if(attribution_value == '无'): return
+                messagebox.showinfo("更改",f"{song_name}({difflculty})定数:{diff_elm.find(attribution_type).text}->{attribution_value}")
+                # fi = open('change.txt', 'a+', encoding='utf-8')
+                # fi.write(f"{song_name}({difflculty}):{diff_elm[0].text}->{attribution_value}\n")#定数变化写入文件
+                diff_elm.find(attribution_type).text = attribution_value
+            
+            elif(attribution_type ==  '曲师'):
+                last_attri = song.find(attribution_type).text
+                messagebox.showinfo('更改',f'曲师更改成功\n曲师:{last_attri}->{attribution_value}')
+                song.find(attribution_type).text = attribution_value
+                phigros_root.tip_song = f'{song.find('名称').text}({attribution_value})'
+
+            elif(attribution_type ==  '章节'):
+                last_attri = song.find(attribution_type).text
+                messagebox.showinfo('更改',f'章节更改成功\n章节:{last_attri}->{attribution_value}')
+                song.find(attribution_type).text = attribution_value
+
+            elif(attribution_type ==  'acc'):
+                attribution_value = phigros_root.valid_test('acc', attribution_value)
+                if(attribution_value == '无'): return
+                messagebox.showinfo("更改",f"{song_name}({difflculty})acc:{diff_elm.find(attribution_type).text}->{attribution_value}")
+                diff_elm.find(attribution_type).text = attribution_value
+
+            elif(attribution_type ==  '简评'):
+                diff_elm.find(attribution_type).text = attribution_value
+                messagebox.showinfo("更改",f"{song_name}({difflculty})简评更改成功")
+
+            if(attribution_type in ['acc', '定数']):
+                if(float(diff_elm.find('acc').text) >= 70):
+                    singal_rks = str(round(float(diff_elm.find('定数').text) * pow((float(diff_elm.find('acc').text) - 55) / 45, 2), 4))
+                else:
+                    singal_rks = '0'
+                diff_elm.find('单曲rks').text = singal_rks
+
+            tree.write(xmlpath, encoding = 'utf-8', xml_declaration = True)
+            phigros_root.get_song_list()
+            phigros_root.change_current_info()
+
+        confirm_button = ctk.CTkButton(phigros_root.content_frame, text = '更改选中歌曲信息', command = song_click)
+        confirm_button.grid(row = rowi, column = 0, pady = 5, padx = 10)
         rowi += 1
 
 
@@ -1098,41 +1164,41 @@ class phigros_data(ctk.CTk):
             rks += b27_list[i][0]
             song_info = b27_list[i][1]#(singal_rks, song_info, diffi)
             diffi = b27_list[i][2]
-            b27_song_label = expand_frame(b27_frame.content_frame, f'{i + 1}.{song_info['名称']}: {b27_list[i][0]}')
+            b27_song_label = expand_frame(b27_frame.content_frame, f'{i + 1}.{song_info['名称'][:min(len(song_info['名称']),20):]}: {b27_list[i][0]}',text_color = self.diff_color[diffi])
             b27_song_label.set_color('#FFFFF0')
             b27_song_label.grid(row = i, column = 0, pady = 5, padx = 10, sticky = 'w')
 
             show_name = song_info['俗称'] if song_info['俗称'] and song_info['俗称'] != '无' else song_info['名称']
-            b27_hid_info = [f'名称:{show_name}', f'rks:{b27_list[i][0]}', f'acc:{song_info[diffi]['acc']}', f'定数:{song_info[diffi]['定数']}']
-            for rowj in range(4):#展示属性个数
+            b27_hid_info = [f'名称:{show_name}', f'难度:{diffi}',f'rks:{b27_list[i][0]}', f'acc:{song_info[diffi]['acc']}', f'定数:{song_info[diffi]['定数']}']
+            for rowj in range(len(b27_hid_info)):#展示属性个数
                 b27_hid_info_label = ctk.CTkLabel(b27_song_label.content_frame, text = b27_hid_info[rowj], font = (ctext_font, 30), fg_color="#F0FFFF",width=400,anchor = 'w')
                 b27_hid_info_label.grid(row = rowj, column = 0, pady = 5, padx = 10, sticky = 'w')
 
         phi3_frame = expand_frame(scroll_frame, 'phi3组成:', True)
         phi3_frame.set_color('#FFFFF0')
-        phi3_frame.grid(row = rowi, column = 0, pady = 2, padx = 2, sticky = 'nsew')
+        phi3_frame.grid(row = rowi, column = 0, pady = 5, padx = 2, sticky = 'nsew')
         rowi += 1
 
         for i in range(min(len(phi3_list), 3)):
             rks += phi3_list[i][0]
             song_info = phi3_list[i][1]#(singal_rks, song_info, diffi)
             diffi = phi3_list[i][2]
-            phi3_song_label = expand_frame(phi3_frame.content_frame, f'{i + 1}.{song_info['名称']}: {phi3_list[i][0]}')
+            phi3_song_label = expand_frame(phi3_frame.content_frame, f'{i + 1}.{song_info['名称'][:min(len(song_info['名称']),20):]}: {phi3_list[i][0]}',text_color = self.diff_color[diffi])
             phi3_song_label.set_color('#FFFFF0')
-            phi3_song_label.grid(row = i, column = 0, pady = 2, padx = 2, sticky = 'w')
+            phi3_song_label.grid(row = i, column = 0, pady = 5, padx = 10, sticky = 'w')
             
             show_name = song_info['俗称'] if song_info['俗称'] and song_info['俗称'] != '无' else song_info['名称']
-            phi3_hid_info = [f'名称:{show_name}', f'rks:{phi3_list[i][0]}', f'acc:{song_info[diffi]['acc']}', f'定数:{song_info[diffi]['定数']}']
-            for rowj in range(4):#展示属性个数
+            phi3_hid_info = [f'名称:{show_name}', f'难度:{diffi}', f'rks:{phi3_list[i][0]}', f'acc:{song_info[diffi]['acc']}', f'定数:{song_info[diffi]['定数']}']
+            for rowj in range(len(b27_hid_info)):#展示属性个数
                 phi3_hid_info_label = ctk.CTkLabel(phi3_song_label.content_frame, text = phi3_hid_info[rowj], font = (ctext_font, 30), fg_color="#F0FFFF",width=400, anchor = 'w')
-                phi3_hid_info_label.grid(row = rowj, column = 0, pady = 5, padx = 5, sticky = 'w')
+                phi3_hid_info_label.grid(row = rowj, column = 0, pady = 5, padx = 10, sticky = 'w')
             
         rks_label = ctk.CTkLabel(scroll_frame, text = f'rks={round(rks/30, 4)}', font = (ctext_font, 35), fg_color="#F0FFFF", width=400, anchor = 'center')
         rks_label.grid(row = 0, column = 0, pady = 5, padx = 5, sticky = 'w')
 
     def find_attribution(self):
+        self.title("phigros数据库-查找项目")
         global find_info_page, seek_type_choose
-        phigros_root.set_size(1000, 750, 720, 300)
         tab_window = ctk.CTkTabview(self.content_frame, width=500, height=550, corner_radius=10, fg_color="lightblue")
         tab_window.pack(fill="both", expand=True, padx=0, pady=0)
 
@@ -1420,16 +1486,25 @@ class phigros_data(ctk.CTk):
     #测试模块
     def test(self):
         print('test st')
-        print(self.get_song_data('name',('Glaciaxion', 'SunsetRay')))
-        print(self.get_song_data('index', 0))
+        tree = ET.parse(xmlpath)
+        xmlroot = tree.getroot()
+        lenn = len(xmlroot)
+        print(f'lenxml={lenn}')
+        for i in range(lenn):
+            if(xmlroot[i].attrib['id'] != str(i)):
+                print(f'第{i}位的id为{xmlroot[i].attrib['id']}')
         print('test ed')
 
 phigros_root = phigros_data()
-phigros_root.set_size(800, 750, 860, 300)
+phigros_root.set_size(1000, 750, 720, 300)
 phigros_root.mainloop()
 '''
 爬取的网页中出现17(17.3)有效数字是17.3 但是存在只打左括号的情况
 用多行注释标识下面模块的作用
 rks组成用heap维护 防MLE 虽然只有1000的数据量(((
 正则表达式模式处理曲师及曲名后的[5]
+玩家可能选择后又进行了输入 所以需要get并判断2次
+给每个难度做了颜色上的区分
+把所有的页面都展开 而不是等待玩家选择后再展开
+隐藏了测试按钮 Shift+L唤起
 '''
