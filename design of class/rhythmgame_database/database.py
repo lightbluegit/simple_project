@@ -2,11 +2,9 @@
 CTkToolTip
 查找页面显示部分玩家自定义 勾选要显示的属性
 每页展示个数
-顺序/逆序输出
-
+每个难度给到推分目标
 选择:
 通用属性改成cnt的形式不然删除维护的时候不知道要不要删
-每个难度给到推分目标
 测试功能的时候打开软件就自动跳转到对应页面
 分析数据?
 '''
@@ -154,151 +152,6 @@ class optionmenu_frame(ctk.CTkFrame):#下拉框
             seek_type = self.get()
             print(f"查找属性:指定{seek_type}")
             phigros_root.change_find_window(seek_type)
-            return
-
-            if(seek_type in ['单曲rks', '定数', 'acc', '简评', '曲师', '章节']):
-                destroy_all(seek_type_choose)
-                global scroll_frame
-                scroll_frame = ctk.CTkScrollableFrame(find_info_page, width=460, height=320)
-                scroll_frame.configure(fg_color = 'transparent')
-                # scroll_frame.grid(row = 4, column = 0, pady = 10, padx = 10, sticky = 'nsew')
-                scroll_frame.place(
-                    relx=0.01,    # X起始位置占窗口宽度的10%
-                    rely=0.35,    # Y起始位置占窗口高度的20%
-                    relwidth=0.95,  # 控件宽度随窗口宽度变化（始终维持80%）
-                    relheight=0.6, # 控件高度随窗口高度变化（始终维持60%）
-                    anchor="nw"    # 锚点控制延展方向（nw=左上角开始扩展）
-                )
-                if(seek_type in ['单曲rks', '定数', 'acc']):
-                    min_entry = entry_frame(find_info_page, '输入最小值:', default_value = '0')
-                    min_entry.configure(fg_color = 'transparent')
-                    min_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
-                    rowi +=  1
-
-                    max_entry = entry_frame(find_info_page, '输入最大值:')
-                    max_entry.configure(fg_color = 'transparent')
-                    max_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
-                    rowi +=  1
-                elif(seek_type == '简评'):
-                    text_entry = entry_frame(find_info_page, '输入简评:')
-                    text_entry.configure(fg_color = 'transparent')
-                    text_entry.set_size(260)
-                    text_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
-                    rowi +=  1
-                else:
-                    seek_list = phigros_root.composer_list
-                    text_entry = combobox_frame(find_info_page, f'选择要查找的{seek_type}', '查找曲师章节', seek_list)
-                    text_entry.configure(fg_color = 'transparent')
-                    text_entry.set_size(230)
-                    text_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
-                    rowi += 1
-                    def filter_values(event):
-                        input_text = text_entry.get().strip().lower()
-                        if not input_text:
-                            text_entry.option_menu.configure(values=seek_list)
-                            return
-                        filtered = [item for item in seek_list if input_text in item.lower()]
-                        text_entry.option_menu.configure(values=filtered)
-                    text_entry.option_menu.bind("<KeyRelease>", filter_values)
-
-                def confirm():
-                    try:
-                        for widget in scroll_frame.winfo_children():
-                            widget.destroy()
-                    except:
-                        print("控件销毁失败")
-                    
-                    tree = ET.parse(xmlpath)
-                    xmlroot = tree.getroot()
-                    if(seek_type in ['单曲rks', '定数', 'acc']):
-                        minimum = float(min_entry.get())
-                        maxmum = max_entry.get()
-                    else:
-                        text = text_entry.get().strip().lower()
-
-                    if(seek_type == '定数'):
-                        maxmum = float(maxmum) if maxmum != '' else 16.9
-                    if(seek_type == 'acc'):
-                        maxmum = float(maxmum) if maxmum != '' else 100
-                    if(seek_type == '单曲rks'):
-                        maxmum = float(maxmum) if maxmum != '' else 16.9
-
-                    find_rst_list = []
-                    for idx in range(len(xmlroot)):
-                        song_info = phigros_root.get_song_data('index', idx)
-                        for diffi in phigros_root.diff_list:
-                            if(diffi in song_info):
-                                if(seek_type in ['单曲rks', '定数', 'acc'] and minimum <= float(song_info[diffi][seek_type]) <= maxmum):
-                                    find_rst_list.append((song_info, diffi, float(song_info[diffi][seek_type]) ))
-                                    
-                                elif(seek_type == '简评' and song_info[diffi][seek_type] is not None and song_info[diffi][seek_type] != '无' and text in song_info[diffi][seek_type].lower()):
-                                    find_rst_list.append((song_info, diffi, song_info[diffi][seek_type] ))
-                        # print(f'输入{text}, 存储{song_info[seek_type]}')
-                        if(seek_type in ['曲师', '章节'] and song_info[seek_type] is not None and song_info[seek_type] != '无' and text in song_info[seek_type].lower()):
-                            find_rst_list.append((song_info, song_info['名称']))
-                    if(seek_type not in ['曲师', '章节']):
-                        find_rst_list = sorted(find_rst_list, key=lambda x: x[2], reverse= True)
-                    find_rst_list = find_rst_list if len(find_rst_list) else [('未找到','匹配结果')]
-                    
-                    total_page = (len(find_rst_list)//20 if len(find_rst_list)%20 == 0 else len(find_rst_list)//20 + 1)
-                    last_page_button = ctk.CTkButton(find_info_page, text = '上一页', command=lambda x=0 : show_page(phigros_root.now_page - 1, find_rst_list, page_label), state="disabled")
-                    last_page_button.place(relx=0.25, rely=1.0, anchor="se", relwidth=0.25) 
-
-                    next_page_button = ctk.CTkButton(find_info_page, text = '下一页', command=lambda x=0 : show_page(phigros_root.now_page + 1, find_rst_list, page_label), state="normal" if phigros_root.now_page < total_page else "disabled")
-                    next_page_button.place(relx=0.75, rely=1.0, anchor="sw", relwidth=0.25) 
-                    def show_page(page, find_rst_list, page_label):
-                        # total_page = (len(find_rst_list)//20 if len(find_rst_list)%20 == 0 else len(find_rst_list)//20 + 1)
-                        if(page == 0 or page > total_page): return
-                        for widget in scroll_frame.winfo_children():
-                            widget.destroy()
-                        scroll_frame._parent_canvas.yview_moveto(0)
-                        scroll_frame.update_idletasks()
-                        rowi = 0; phigros_root.now_page = page
-                        # print(find_rst_list)
-                        if(find_rst_list == [('未找到', '匹配结果')]):
-                            noinfo_label = ctk.CTkLabel(scroll_frame, text = '未找到匹配结果', fg_color="#F0FFFF", corner_radius=6, width=300, anchor='w')
-                            noinfo_label.grid(row = 0, column = 0, pady = 5, padx = 10, sticky = 'w')
-                            return
-                        for i in find_rst_list[(page - 1) * 20:min(len(find_rst_list), page * 20):]:
-                            song_info = i[0]; diff = i[1]
-                            # print(f'dong={song_info}, diff={diff}')
-                            if(seek_type in ['单曲rks', '定数', 'acc', '简评']):
-                                main_info = song_info[diff][seek_type]
-                            else:
-                                main_info = song_info[seek_type]
-                            song_frame = expand_frame(scroll_frame, f'{20 * (page-1)+rowi+1}.{song_info['名称']}:{main_info}',text_color = phigros_root.diff_color[diff])
-                            # label = ctk.CTkLabel(scroll_frame, text=, fg_color="#F0FFFF", corner_radius=6, width=300, anchor='w')
-                            song_frame.grid(row=rowi, column=0, padx=10, pady=5, sticky="w")
-                            rowi += 1
-
-                            show_name = song_info['俗称'] if song_info['俗称'] != '无' else song_info['名称']
-                            contain = {'名称': f'{show_name}', '曲师':f'{song_info['曲师']}' ,'章节': f'{song_info['章节']}'}
-                            if(seek_type in ['单曲rks', '定数', 'acc', '简评']):
-                                contain['难度'] = f'{diff}'
-                                contain['定数'] = f'{song_info[diff]['定数']}'
-                                contain['acc'] = f'{song_info[diff]['acc']}'
-                                contain[f'{seek_type}'] = main_info
-                            idx = 0
-                            song_image = ctk.CTkImage(light_image=Image.open(f'rhythmgame_database/images/{song_info['歌曲id']}.png'),size=(500,250))
-                            b27_hid_info_label = ctk.CTkLabel(song_frame.content_frame, text = '',image=song_image)
-                            b27_hid_info_label.grid(row = idx, column = 0, pady = 5, padx = 10, sticky = 'w')
-                            idx += 1
-                            for keyi, vali in contain.items():
-                                name_label = ctk.CTkLabel(song_frame.content_frame, text=f'{keyi}:{vali}', fg_color="#F0FFFF", corner_radius=6, width=300, anchor='w')
-                                name_label.grid(row=idx, column=0, padx=10, pady=5, sticky="w")
-                                idx += 1
-
-                        page_label.configure(text = f'当前页数:{phigros_root.now_page}/{total_page}')
-                        last_page_button.configure(state="normal" if phigros_root.now_page > 1 else "disabled")
-                        next_page_button.configure(state="normal" if phigros_root.now_page < total_page else "disabled")
-                        
-                    page_label = ctk.CTkLabel(find_info_page, text=f'当前页数:{phigros_root.now_page}/{total_page}', fg_color="#F0FFFF", corner_radius=6)
-                    page_label.place(relx=0.5, rely=1.0, anchor="s") 
-                    show_page(1, find_rst_list, page_label)
-                    
-                button = ctk.CTkButton(find_info_page, text = '查找选中歌曲', command = confirm)
-                button.grid(row = rowi, column = 0, pady = 10, padx = 10)
-                rowi += 1
 
         if(button_name == '更改属性'):
             phigros_root.tip_attri = self.get()
@@ -483,7 +336,8 @@ class phigros_data(ctk.CTk):
         self.diff_list = ['AT', 'IN', 'HD','EZ']
         self.addable_song = {}
         self.diff_color = {'AT':'#FF69B4', 'IN':'#00FFFF', 'HD':'#00FA9A','EZ':'#FFEBA3'}
-        
+        self.MAX_LEVEL = 17.6#最高定数
+
         tree = ET.parse(xmlpath)
         xmlroot = tree.getroot()
         for idx in range(len(xmlroot)):
@@ -646,8 +500,8 @@ class phigros_data(ctk.CTk):
                 val = self.nickname_dic[val]
                 # print(f'俗称转名称:{val}')
         
-        elif(s_type == '定数'):
-            return valid_float(val, 0, 17.6)
+        elif(s_type in ['定数', '单曲rks']):
+            return valid_float(val, 0, self.MAX_LEVEL)
         
         elif(s_type == 'acc'):
             return valid_float(val, 0, 100)
@@ -672,6 +526,7 @@ class phigros_data(ctk.CTk):
                         error_char += i
                 messagebox.showerror('非法输入', f'输入中包含 {set(error_char)} 等非法字符')
                 return '无'
+        
         return val
 
     def view_page(self, page_name, viewable = False):
@@ -1232,24 +1087,326 @@ class phigros_data(ctk.CTk):
         self.view_page('改')
         self.nav_buttons['改'].grid()
 
-    
+
     def change_find_window(self, attri):#根据查找属性更改查找页面的布局
         if(attri not in ['名称', '曲师', '章节', '单曲rks', '定数', 'acc', '简评']):
             messagebox.showerror('', '你这换页查找的属性输入不对啊')
             return 
-        for page_namei in ('名称', '曲师', '章节', '简评'):
+        for page_namei in ('名称', '曲师', '章节', '简评','单曲rks', '定数', 'acc'):
             if(attri != page_namei):
-                print(f'移除{page_namei}')
+                # print(f'移除{page_namei}')
                 self.grid_item['查'][page_namei].grid_remove()
         self.grid_item['查'][attri].grid()
-        print(f'布局{attri}')
+        # print(f'布局{attri}')
         self.find_now_page = attri
         for content_pagei in self.page_administrator:#把滚动框内容全清除
             content_pagei.destroy()
         self.page_administrator = []
 
+    def init_find_window(self):
+        global find_info_page, seek_type_choose
+        tab_window = ctk.CTkTabview(self.content_frame, width=500, height=550, corner_radius=10, fg_color="lightblue")
+        tab_window.grid(row=0, column=0, sticky="nsew", padx=0, pady=0)
+        self.grid_item['查']['总框'] = tab_window
+
+        find_rks_page = tab_window.add('rks组成')
+        find_info_page = tab_window.add('歌曲信息查找')
+
+        tree = ET.parse(xmlpath)
+        xmlroot = tree.getroot()
+        # self.b27_list = []; self.phi3_list = []; index_counter = 0#递增
+        
+        # for index in range(len(xmlroot)):
+        #     song_info = self.get_song_data('index', index)
+        #     for diffi in self.diff_list:
+        #         if(diffi in song_info.keys()):
+        #             acc = float(song_info[diffi]['acc'])
+        #             singal_rks = float(song_info[diffi]['单曲rks'])
+        #             index_counter += 1
+        #             item = [singal_rks, index_counter, song_info, diffi]
+                    
+        #             if len(self.b27_list) < 27:
+        #                 heapq.heappush(self.b27_list, item)
+        #             else:
+        #                 heapq.heappushpop(self.b27_list, item)
+
+        #             if(int(acc) == 100):
+        #                 # print(name)
+        #                 if len(self.phi3_list) < 3:
+        #                     heapq.heappush(self.phi3_list, item)
+        #                 else:
+        #                     heapq.heappushpop(self.phi3_list, item)
+
+        # self.b27_list = [[item[0], item[2], item[3]] for item in self.b27_list]
+        # self.b27_list.sort(reverse=True, key=lambda x: x[0])  # 降序排列
+        
+        # self.phi3_list = [[item[0], item[2], item[3]] for item in self.phi3_list]
+        # self.phi3_list.sort(reverse=True, key=lambda x: x[0])  # 降序排列
+        # # print(f'phi3={self.phi3_list}')
+        # scroll_frame = ctk.CTkScrollableFrame(find_rks_page, width=540, height=540)
+        # scroll_frame.configure(fg_color = 'transparent')
+        # self.contain_item['查']['滚动页面'] = scroll_frame
+        # scroll_frame.pack(fill="both", expand=True, padx=0, pady=0)
+        # self.generate_rks_conpound(self.contain_item['查']['滚动页面'])
+
+        '''按照属性查找'''
+        self.find_now_page = '名称'#find_now_page==查找页面当前的窗口
+        seek_type_choose = optionmenu_frame(find_info_page, '选择查找属性', '查找属性', ['名称', '曲师', '章节', '单曲rks', '定数', 'acc', '简评'], self.find_now_page)
+        seek_type_choose.configure(fg_color = 'transparent')
+        seek_type_choose.grid(row = 0, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+        self.contain_item['查']['属性'] = seek_type_choose
+
+        self.init_find_composor_page()
+        self.init_find_chapter_page()
+        self.init_find_name_page()
+        self.init_find_comment_page()
+        self.init_find_acc_page()
+        self.init_find_rks_page()
+        self.init_find_level_page()
+        self.now_find_page = 0#now_find_page==当前查找的页数
+        self.find_rst_list = {}; self.total_find_page = 0
+        self.page_administrator = []#不预先定义 初始化切换查找页面无法通过
+        def confirm():
+            find_start_time = time.time()
+            for content_pagei in self.page_administrator:#清除滚动展示框中上一次的内容
+                content_pagei.destroy()
+            self.page_administrator = []
+            find_rst_list = []; 
+            if(seek_type_choose.get() in ['名称', '曲师', '章节', '简评']):#内容选择框+难度框
+                page = seek_type_choose.get()
+                find_goal = self.valid_test(page, self.contain_item['查'][f'{page}-名称'].get())
+                if(find_goal == '无'):
+                    messagebox.showerror('', f'你这{page}输入有问题啊')
+                    return
+                print(f'查找目标{find_goal}')
+                if(page != '简评'):
+                    difficulty = self.contain_item['查'][f'{page}-难度'].get()
+                
+                tree = ET.parse(xmlpath)
+                xmlroot = tree.getroot()
+                for song_idx in range(len(xmlroot)):
+                    song_elm = xmlroot[song_idx]
+                    if(page == '名称'):
+                        if('(' in find_goal):#准确搜索
+                            bracket_idx = find_goal.rindex('(')
+                            name = find_goal[:bracket_idx:]
+                            composer = find_goal[bracket_idx + 1: -1:]
+                            song_info = self.get_song_data('name',(name, composer))
+                            if(song_info and difficulty in song_info.keys()):
+                                find_rst_list.append((song_info, difficulty))
+                                break
+                        elif(find_goal.lower() in song_elm.find('名称').text.lower()):#模糊搜索
+                            song_info = self.get_song_data('index', song_idx)
+                            if(difficulty in song_info.keys()):
+                                find_rst_list.append((song_info, difficulty))
+                    
+                    elif(page == '曲师' and find_goal.lower() in song_elm.find('曲师').text.lower()):
+                        song_info = self.get_song_data('index', song_idx)
+                        if(difficulty in song_info.keys()):
+                            find_rst_list.append((song_info, difficulty))
+
+                    elif(page == '章节' and find_goal.lower() in song_elm.find('章节').text.lower()):
+                        song_info = self.get_song_data('index', song_idx)
+                        if(difficulty in song_info.keys()):
+                            find_rst_list.append((song_info, difficulty))
+                    
+                    elif(page == '简评'):
+                        song_info = self.get_song_data('index', song_idx)
+                        for diffi in self.diff_list:
+                            if(diffi in song_info.keys()):
+                                commenti = song_info[diffi]['简评'].lower()
+                                if(commenti == '无'):
+                                    break
+                                if(find_goal.lower() in commenti):
+                                    find_rst_list.append((song_info, diffi))
+
+            elif(seek_type_choose.get() in ['单曲rks', '定数', 'acc']):#范围输入框
+                page = seek_type_choose.get()
+                min_num = self.contain_item['查'][f'{page}-最小值'].get()
+                if(min_num == ''):
+                    min_num = '0'
+                else:
+                    min_num = self.valid_test(page, min_num)
+
+                max_num = self.contain_item['查'][f'{page}-最大值'].get()
+                print(f'min={min_num}max={max_num}')
+                if(max_num == ''):
+                    if(page == 'acc'):
+                        max_num = '100'
+                    elif(page in ('单曲rks', '定数')):
+                        max_num = self.MAX_LEVEL
+                else:
+                    max_num = self.valid_test(page, max_num)
+                if('无' in (min_num, max_num)):
+                    messagebox.showerror('', f'你这{page}输入有问题啊')
+                    return
+                
+                tree = ET.parse(xmlpath)
+                xmlroot = tree.getroot()
+                for song_idx in range(len(xmlroot)):
+                    song_info = self.get_song_data('index', song_idx)
+                    for diffi in self.diff_list:
+                        if(diffi in song_info.keys()):
+                            song_acc = float(song_info[diffi][page])
+                            if(float(min_num) <= song_acc <= float(max_num)):
+                                find_rst_list.append((song_info, diffi))
+
+            #在滚动框架下布局 folder
+            self.total_find_page = (len(find_rst_list) + 19) // 20
+            # print(self.total_find_page)
+            
+            scroll_frame = self.contain_item['查']['属性-内容滚动框']
+            for i in range(self.total_find_page):
+                page_content_frame = ctk.CTkFrame(scroll_frame)
+                page_content_frame.configure(fg_color = 'transparent')
+                self.page_administrator.append(page_content_frame)
+                self.page_administrator[i].grid(row = 0,column=0, padx=0, pady=0,sticky="nsew")
+                self.page_administrator[i].grid_remove()
+
+            for index, songi in enumerate(find_rst_list):#遍历布局歌曲
+                master = self.page_administrator[index//20]
+                # print(songi)
+                song_info = songi[0]; difficulty = songi[1]
+                if(page in ('曲师', '章节')):
+                    title_info = song_info[page]
+                elif(page in ('单曲rks', '定数', 'acc', '简评')):
+                    title_info = song_info[difficulty][page]
+                elif(page  == '名称'):
+                    title_info = song_info[difficulty]['单曲rks']
+                songi_frame = expand_frame(master, f'{index + 1}.{song_info['名称']}:{title_info[:min(len(title_info), 20):]}',text_color = phigros_root.diff_color[difficulty])
+                songi_frame.grid(row=index%20, column=0, padx=10, pady=5, sticky="w")
+                #布局歌曲隐藏属性
+                rowi = 1
+                for titlei, attri in song_info.items():
+                    if(titlei in self.diff_list and titlei != songi[1]):
+                        continue
+                    # try:
+                    #     song_image = ctk.CTkImage(light_image=Image.open(f'rhythmgame_database/images/{song_info['歌曲id']}.png'), size=(500,250))
+                    #     image_label = ctk.CTkLabel(songi_frame.content_frame, text = '',image=song_image)
+                    #     image_label.grid(row = 0, column = 0, pady = 5, padx = 10, sticky = 'w')
+                    # except:
+                    #     pass
+                    rowi += 1
+                    if(type(attri) != type({1:1})):
+                        info_label = ctk.CTkLabel(songi_frame.content_frame, text=f'{titlei}:{attri}', fg_color="#F0FFFF",text_color = phigros_root.diff_color[difficulty], corner_radius=6, width=300, anchor='w')
+                        info_label.grid(row=rowi, column=0, padx=10, pady=5, sticky="w")
+                        rowi += 1
+                    else:
+                        # print(song_info[difficulty])
+                        for dic_titlei, dic_attri in song_info[difficulty].items():
+                            # print(dic_titlei, dic_attri)
+                            info_label = ctk.CTkLabel(songi_frame.content_frame, text=f'{dic_titlei}:{dic_attri}', fg_color="#F0FFFF",text_color = phigros_root.diff_color[difficulty], corner_radius=6, width=300, anchor='w')
+                            info_label.grid(row=rowi, column=0, padx=10, pady=5, sticky="w")
+                            rowi += 1
+                self.page_administrator[0].grid()
+            
+            self.contain_item['查']['下一页'].configure(state="normal" if(self.now_find_page < self.total_find_page-1) else 'disabled')
+            self.contain_item['查']['当前页/总页'].configure(text=f'当前页数:{self.now_find_page + 1}/{self.total_find_page}')
+            
+            print(f'搜索完毕 共找到{len(find_rst_list)}个项目 用时{time.time() - find_start_time}s')
+
+        button = ctk.CTkButton(find_info_page, text = '查找选中歌曲', command = confirm)
+        button.grid(row = 2, column = 0, pady = 10, padx = 10)
+
+        scroll_frame = ctk.CTkScrollableFrame(find_info_page, width=460, height=320)
+        scroll_frame.configure(fg_color = 'transparent')
+        scroll_frame.place(
+            relx=0.01,    # X起始位置占窗口宽度的10%
+            rely=0.35,    # Y起始位置占窗口高度的20%
+            relwidth=0.95,  # 控件宽度随窗口宽度变化（始终维持80%）
+            relheight=0.6, # 控件高度随窗口高度变化（始终维持60%）
+            anchor="nw"    # 锚点控制延展方向（nw=左上角开始扩展）
+        )
+        self.contain_item['查']['属性-内容滚动框'] = scroll_frame
+
+        last_page_button = ctk.CTkButton(find_info_page, text = '上一页', command=lambda x = None : self.switch_find_page('上一页'), state="disabled" if(self.now_find_page < 1) else 'normal')
+        last_page_button.place(relx=0.25, rely=1.0, anchor="se", relwidth=0.25)
+        self.contain_item['查']['上一页'] = last_page_button
+
+        page_label = ctk.CTkLabel(find_info_page, text=f'当前页数:1/?', fg_color="#F0FFFF", corner_radius=6)
+        self.contain_item['查']['当前页/总页'] = page_label
+        page_label.place(relx=0.5, rely=1.0, anchor="s") 
+
+        next_page_button = ctk.CTkButton(find_info_page, text = '下一页', command=lambda x = None : self.switch_find_page('下一页'), state="disabled")
+        next_page_button.place(relx=0.75, rely=1.0, anchor="sw", relwidth=0.25) 
+        self.contain_item['查']['下一页'] = next_page_button
+
+        self.view_page('查')
+        self.nav_buttons['查'].grid()
+
+    def generate_rks_conpound(self, scroll_frame):
+        print(f'rks组成正在生成中...')
+        start_time = time.time()
+        self.rks = 0
+        rowi = 1
+        for widget in scroll_frame.winfo_children():
+            widget.destroy()
+        b27_frame = expand_frame(scroll_frame, 'b27组成:', True)
+        b27_frame.set_color('#FFFFF0')
+        b27_frame.grid(row = rowi, column = 0, pady = 5, padx = 2, sticky = 'nsew')
+        self.contain_item['查']['b27文件夹'] = b27_frame
+        rowi += 1
+        for i in range(min(len(self.b27_list), 27)):
+            self.rks += self.b27_list[i][0]
+            song_info = self.b27_list[i][1]#(singal_rks, song_info, diffi)
+            diffi = self.b27_list[i][2]
+            
+            b27_song_label = expand_frame(b27_frame.content_frame, f'{i + 1}.{song_info['名称'][:min(len(song_info['名称']),20):]}: {self.b27_list[i][0]}',text_color = self.diff_color[diffi])
+            b27_song_label.set_color('#FFFFF0')
+            b27_song_label.grid(row = i, column = 0, pady = 5, padx = 10, sticky = 'w')
+
+            show_name = song_info['俗称'] if song_info['俗称'] and song_info['俗称'] != '无' else song_info['名称']
+            b27_hid_info = [f'名称:{show_name}', f'难度:{diffi}',f'rks:{self.b27_list[i][0]}', f'acc:{song_info[diffi]['acc']}', f'定数:{song_info[diffi]['定数']}']
+            # try:
+            #     song_image = ctk.CTkImage(
+            #         light_image=Image.open(f'rhythmgame_database/images/{song_info['歌曲id']}.png'),size=(500,250)
+            #     )
+            #     b27_hid_img_label = ctk.CTkLabel(b27_song_label.content_frame, text = '',image=song_image)
+            #     b27_hid_img_label.grid(row = 0, column = 0, pady = 5, padx = 10, sticky = 'w')
+            # except:
+            #     print('图像生成错误')
+            
+            for rowj in range(1,len(b27_hid_info)+1):#展示属性个数
+                b27_hid_info_label = ctk.CTkLabel(b27_song_label.content_frame, text = b27_hid_info[rowj-1], font = (ctext_font, 30), fg_color="#F0FFFF",width=400,anchor = 'w')
+                b27_hid_info_label.grid(row = rowj, column = 0, pady = 5, padx = 10, sticky = 'w')
+
+        phi3_frame = expand_frame(scroll_frame, 'phi3组成:', True)
+        phi3_frame.set_color('#FFFFF0')
+        phi3_frame.grid(row = rowi, column = 0, pady = 5, padx = 2, sticky = 'nsew')
+        self.contain_item['查']['phi3文件夹'] = phi3_frame
+        rowi += 1
+        for i in range(min(len(self.phi3_list), 3)):
+            self.rks += self.phi3_list[i][0]
+            song_info = self.phi3_list[i][1]#(singal_rks, song_info, diffi)
+            diffi = self.phi3_list[i][2]
+            phi3_song_label = expand_frame(phi3_frame.content_frame, f'{i + 1}.{song_info['名称'][:min(len(song_info['名称']),20):]}: {self.phi3_list[i][0]}',text_color = self.diff_color[diffi])
+            phi3_song_label.set_color('#FFFFF0')
+            phi3_song_label.grid(row = i, column = 0, pady = 5, padx = 10, sticky = 'w')
+            
+            show_name = song_info['俗称'] if song_info['俗称'] and song_info['俗称'] != '无' else song_info['名称']
+            phi3_hid_info = [f'名称:{show_name}', f'难度:{diffi}', f'rks:{self.phi3_list[i][0]}', f'acc:{song_info[diffi]['acc']}', f'定数:{song_info[diffi]['定数']}']
+            # try:
+            #     song_image = ctk.CTkImage(
+            #         light_image=Image.open(f'rhythmgame_database/images/{song_info['歌曲id']}.png'),size=(500,250)
+            #     )
+            #     phi3_hid_info_label = ctk.CTkLabel(phi3_song_label.content_frame, text = '',image=song_image)
+            #     phi3_hid_info_label.grid(row = 0, column = 0, pady = 5, padx = 10, sticky = 'w')
+            # except:
+            #     print('图像生成错误')
+            for rowj in range(1, len(phi3_hid_info) + 1):#展示属性个数
+                phi3_hid_info_label = ctk.CTkLabel(phi3_song_label.content_frame, text = phi3_hid_info[rowj - 1], font = (ctext_font, 30), fg_color="#F0FFFF",width=400, anchor = 'w')
+                phi3_hid_info_label.grid(row = rowj, column = 0, pady = 5, padx = 10, sticky = 'w')
+            
+        rks_label = ctk.CTkLabel(scroll_frame, text = f'rks={round(self.rks/30, 4)}', font = (ctext_font, 35), fg_color="#F0FFFF", width=400, anchor = 'center')
+        rks_label.grid(row = 0, column = 0, pady = 5, padx = 5, sticky = 'w')
+        self.contain_item['查']['rks文字'] = rks_label
+        
+        print(f'rks组成生成完毕,用时{round(time.time()-start_time,2)}s')
+
     def switch_find_page(self, operation):
         self.page_administrator[self.now_find_page].grid_remove()
+        self.contain_item['查']['属性-内容滚动框']._parent_canvas.yview_moveto(0)#重置换页后滚动条的位置
+        self.contain_item['查']['属性-内容滚动框'].update_idletasks()
         if(operation == '上一页'):
             self.now_find_page -= 1
         elif(operation == '下一页'):
@@ -1257,6 +1414,7 @@ class phigros_data(ctk.CTk):
         self.page_administrator[self.now_find_page].grid()
         self.contain_item['查']['下一页'].configure(state="normal" if(self.now_find_page < self.total_find_page-1) else 'disabled')
         self.contain_item['查']['上一页'].configure(state="disabled" if(self.now_find_page < 1) else 'normal')
+        self.contain_item['查']['当前页/总页'].configure(text=f'当前页数:{self.now_find_page + 1}/{self.total_find_page}')
 
     def init_find_name_page(self):#记录根据名称寻找的歌曲的限制条件
         find_name_content_frame = ctk.CTkFrame(find_info_page)
@@ -1351,273 +1509,86 @@ class phigros_data(ctk.CTk):
         find_chapter_content_frame.grid(row=1, column=0, sticky="nsew", padx=0, pady=0)
 
     def init_find_comment_page(self):
-        global find_comment_content_frame
         find_comment_content_frame = ctk.CTkFrame(find_info_page)
         find_comment_content_frame.configure(fg_color = 'transparent')
         self.grid_item['查']['简评'] = find_comment_content_frame
 
         rowi = 0
 
-        min_entry = entry_frame(find_comment_content_frame, '输入简评内容')
-        min_entry.configure(fg_color = 'transparent')
-        min_entry.set_size(230)
-        min_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
-        self.contain_item['查']['简评-名称'] = min_entry
+        comment_entry = entry_frame(find_comment_content_frame, '输入简评内容')
+        comment_entry.configure(fg_color = 'transparent')
+        comment_entry.set_size(230)
+        comment_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+        self.contain_item['查']['简评-名称'] = comment_entry
         rowi +=  1
 
         find_comment_content_frame.grid(row=1, column=0, sticky="nsew", padx=0, pady=0)
 
-    def init_find_window(self):
-        global find_info_page, seek_type_choose
-        tab_window = ctk.CTkTabview(self.content_frame, width=500, height=550, corner_radius=10, fg_color="lightblue")
-        tab_window.grid(row=0, column=0, sticky="nsew", padx=0, pady=0)
-        self.grid_item['查']['总框'] = tab_window
+    def init_find_acc_page(self):
+        find_acc_content_frame = ctk.CTkFrame(find_info_page)
+        find_acc_content_frame.configure(fg_color = 'transparent')
+        self.grid_item['查']['acc'] = find_acc_content_frame
+        rowi = 0
 
-        find_rks_page = tab_window.add('rks组成')
-        find_info_page = tab_window.add('歌曲信息查找')
+        min_entry = entry_frame(find_acc_content_frame, '最小acc(不写默认0)')
+        min_entry.configure(fg_color = 'transparent')
+        min_entry.set_size(230)
+        min_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+        self.contain_item['查']['acc-最小值'] = min_entry
+        rowi +=  1
 
-        tree = ET.parse(xmlpath)
-        xmlroot = tree.getroot()
-        # self.b27_list = []; self.phi3_list = []; index_counter = 0#递增
-        
-        # for index in range(len(xmlroot)):
-        #     song_info = self.get_song_data('index', index)
-        #     for diffi in self.diff_list:
-        #         if(diffi in song_info.keys()):
-        #             acc = float(song_info[diffi]['acc'])
-        #             singal_rks = float(song_info[diffi]['单曲rks'])
-        #             index_counter += 1
-        #             item = [singal_rks, index_counter, song_info, diffi]
-                    
-        #             if len(self.b27_list) < 27:
-        #                 heapq.heappush(self.b27_list, item)
-        #             else:
-        #                 heapq.heappushpop(self.b27_list, item)
+        max_entry = entry_frame(find_acc_content_frame, '最大acc(不写默认100)')
+        max_entry.configure(fg_color = 'transparent')
+        max_entry.set_size(230)
+        max_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+        self.contain_item['查']['acc-最大值'] = max_entry
+        rowi +=  1
 
-        #             if(int(acc) == 100):
-        #                 # print(name)
-        #                 if len(self.phi3_list) < 3:
-        #                     heapq.heappush(self.phi3_list, item)
-        #                 else:
-        #                     heapq.heappushpop(self.phi3_list, item)
+        find_acc_content_frame.grid(row=1, column=0, sticky="nsew", padx=0, pady=0)
 
-        # self.b27_list = [[item[0], item[2], item[3]] for item in self.b27_list]
-        # self.b27_list.sort(reverse=True, key=lambda x: x[0])  # 降序排列
-        
-        # self.phi3_list = [[item[0], item[2], item[3]] for item in self.phi3_list]
-        # self.phi3_list.sort(reverse=True, key=lambda x: x[0])  # 降序排列
-        # # print(f'phi3={self.phi3_list}')
-        # scroll_frame = ctk.CTkScrollableFrame(find_rks_page, width=540, height=540)
-        # scroll_frame.configure(fg_color = 'transparent')
-        # self.contain_item['查']['滚动页面'] = scroll_frame
-        # scroll_frame.pack(fill="both", expand=True, padx=0, pady=0)
-        # self.generate_rks_conpound(self.contain_item['查']['滚动页面'])
+    def init_find_rks_page(self):
+        find_rks_content_frame = ctk.CTkFrame(find_info_page)
+        find_rks_content_frame.configure(fg_color = 'transparent')
+        self.grid_item['查']['单曲rks'] = find_rks_content_frame
+        rowi = 0
 
-        '''按照属性查找'''
-        self.find_now_page = '名称'#find_now_page==查找页面当前的窗口
-        seek_type_choose = optionmenu_frame(find_info_page, '选择查找属性', '查找属性', ['名称', '曲师', '章节', '单曲rks', '定数', 'acc', '简评'], self.find_now_page)
-        seek_type_choose.configure(fg_color = 'transparent')
-        seek_type_choose.grid(row = 0, column = 0, pady = 10, padx = 10, sticky = 'nsew')
-        self.contain_item['查']['属性'] = seek_type_choose
+        min_entry = entry_frame(find_rks_content_frame, '最小单曲rks(不写默认0)')
+        min_entry.configure(fg_color = 'transparent')
+        min_entry.set_size(230)
+        min_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+        self.contain_item['查']['单曲rks-最小值'] = min_entry
+        rowi +=  1
 
-        self.init_find_composor_page()
-        self.init_find_chapter_page()
-        self.init_find_name_page()
-        self.init_find_comment_page()
-        self.now_find_page = 0#now_find_page==当前查找的页数
-        self.find_rst_list = {}; self.total_find_page = 0
-        self.page_administrator = []#不预先定义 初始化切换查找页面无法通过
-        def confirm():
-            for content_pagei in self.page_administrator:#清除滚动展示框中上一次的内容
-                content_pagei.destroy()
-            self.page_administrator = []
-            find_rst_list = []; 
-            if(seek_type_choose.get() in ['名称', '曲师', '章节', '简评']):
-                page = seek_type_choose.get()
-                find_goal = self.valid_test(page, self.contain_item['查'][f'{page}-名称'].get())
-                print(f'查找目标{find_goal}')
-                if(page != '简评'):
-                    difficulty = self.contain_item['查'][f'{page}-难度'].get()
-                
-                tree = ET.parse(xmlpath)
-                xmlroot = tree.getroot()
-                for song_idx in range(len(xmlroot)):
-                    song_elm = xmlroot[song_idx]
-                    if(page == '名称'):
-                        if('(' in find_goal):#准确搜索
-                            bracket_idx = find_goal.rindex('(')
-                            name = find_goal[:bracket_idx:]
-                            composer = find_goal[bracket_idx + 1: -1:]
-                            song_info = self.get_song_data('name',(name, composer))
-                            if(song_info and difficulty in song_info.keys()):
-                                find_rst_list.append((song_info, difficulty))
-                                break
-                        elif(find_goal.lower() in song_elm.find('名称').text.lower()):#模糊搜索
-                            song_info = self.get_song_data('index', song_idx)
-                            if(difficulty in song_info.keys()):
-                                find_rst_list.append((song_info, difficulty))
-                    
-                    elif(page == '曲师' and find_goal.lower() in song_elm.find('曲师').text.lower()):
-                        song_info = self.get_song_data('index', song_idx)
-                        if(difficulty in song_info.keys()):
-                            find_rst_list.append((song_info, difficulty))
+        max_entry = entry_frame(find_rks_content_frame, f'最大单曲rks(不写默认{self.MAX_LEVEL})')
+        max_entry.configure(fg_color = 'transparent')
+        max_entry.set_size(230)
+        max_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+        self.contain_item['查']['单曲rks-最大值'] = max_entry
+        rowi +=  1
 
-                    elif(page == '章节' and find_goal.lower() in song_elm.find('章节').text.lower()):
-                        song_info = self.get_song_data('index', song_idx)
-                        if(difficulty in song_info.keys()):
-                            find_rst_list.append((song_info, difficulty))
-                    
-                    elif(page == '简评'):
-                        song_info = self.get_song_data('index', song_idx)
-                        for diffi in self.diff_list:
-                            if(diffi in song_info.keys()):
-                                commenti = song_info[diffi]['简评'].lower()
-                                if(commenti == '无'):
-                                    break
-                                if(find_goal.lower() in commenti):
-                                    find_rst_list.append((song_info, diffi))
+        find_rks_content_frame.grid(row=1, column=0, sticky="nsew", padx=0, pady=0)
 
-                #在滚动框架下布局 folder
-                self.total_find_page = (len(find_rst_list) + 19) // 20
-                # print(self.total_find_page)
-                
-                scroll_frame = self.contain_item['查']['属性-内容滚动框']
-                for i in range(self.total_find_page):
-                    page_content_frame = ctk.CTkFrame(scroll_frame)
-                    page_content_frame.configure(fg_color = 'transparent')
-                    self.page_administrator.append(page_content_frame)
-                    self.page_administrator[i].grid(row = 0,column=0, padx=0, pady=0,sticky="nsew")
-                    self.page_administrator[i].grid_remove()
+    def init_find_level_page(self):
+        find_level_content_frame = ctk.CTkFrame(find_info_page)
+        find_level_content_frame.configure(fg_color = 'transparent')
+        self.grid_item['查']['定数'] = find_level_content_frame
+        rowi = 0
 
-                for index, songi in enumerate(find_rst_list):#遍历布局歌曲
-                    master = self.page_administrator[index//20]
-                    # print(songi)
-                    song_info = songi[0]; difficulty = songi[1]
-                    songi_frame = expand_frame(master, f'{index + 1}.{song_info['名称']}:{song_info[difficulty]['单曲rks']}',text_color = phigros_root.diff_color[difficulty])
-                    songi_frame.grid(row=index%20, column=0, padx=10, pady=5, sticky="w")
-                    #布局歌曲隐藏属性
-                    rowi = 1
-                    for titlei, attri in song_info.items():
-                        if(titlei in self.diff_list and titlei != songi[1]):
-                            continue
-                        # try:
-                        #     song_image = ctk.CTkImage(light_image=Image.open(f'rhythmgame_database/images/{song_info['歌曲id']}.png'), size=(500,250))
-                        #     image_label = ctk.CTkLabel(songi_frame.content_frame, text = '',image=song_image)
-                        #     image_label.grid(row = 0, column = 0, pady = 5, padx = 10, sticky = 'w')
-                        # except:
-                        #     pass
-                        rowi += 1
-                        if(type(attri) != type({1:1})):
-                            info_label = ctk.CTkLabel(songi_frame.content_frame, text=f'{titlei}:{attri}', fg_color="#F0FFFF",text_color = phigros_root.diff_color[difficulty], corner_radius=6, width=300, anchor='w')
-                            info_label.grid(row=rowi, column=0, padx=10, pady=5, sticky="w")
-                            rowi += 1
-                        else:
-                            # print(song_info[difficulty])
-                            for dic_titlei, dic_attri in song_info[difficulty].items():
-                                # print(dic_titlei, dic_attri)
-                                info_label = ctk.CTkLabel(songi_frame.content_frame, text=f'{dic_titlei}:{dic_attri}', fg_color="#F0FFFF",text_color = phigros_root.diff_color[difficulty], corner_radius=6, width=300, anchor='w')
-                                info_label.grid(row=rowi, column=0, padx=10, pady=5, sticky="w")
-                                rowi += 1
-                    self.page_administrator[0].grid()
-            # 转换页面
-                self.contain_item['查']['下一页'].configure(state="normal" if(self.now_find_page < self.total_find_page-1) else 'disabled')
-        
-        button = ctk.CTkButton(find_info_page, text = '查找选中歌曲', command = confirm)
-        button.grid(row = 2, column = 0, pady = 10, padx = 10)
+        min_entry = entry_frame(find_level_content_frame, '最小定数(不写默认0)')
+        min_entry.configure(fg_color = 'transparent')
+        min_entry.set_size(230)
+        min_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+        self.contain_item['查']['定数-最小值'] = min_entry
+        rowi +=  1
 
-        scroll_frame = ctk.CTkScrollableFrame(find_info_page, width=460, height=320)
-        scroll_frame.configure(fg_color = 'transparent')
-        scroll_frame.place(
-            relx=0.01,    # X起始位置占窗口宽度的10%
-            rely=0.35,    # Y起始位置占窗口高度的20%
-            relwidth=0.95,  # 控件宽度随窗口宽度变化（始终维持80%）
-            relheight=0.6, # 控件高度随窗口高度变化（始终维持60%）
-            anchor="nw"    # 锚点控制延展方向（nw=左上角开始扩展）
-        )
-        self.contain_item['查']['属性-内容滚动框'] = scroll_frame
+        max_entry = entry_frame(find_level_content_frame, f'最大定数(不写默认{self.MAX_LEVEL})')
+        max_entry.configure(fg_color = 'transparent')
+        max_entry.set_size(230)
+        max_entry.grid(row = rowi, column = 0, pady = 10, padx = 10, sticky = 'nsew')
+        self.contain_item['查']['定数-最大值'] = max_entry
+        rowi +=  1
 
-        last_page_button = ctk.CTkButton(find_info_page, text = '上一页', command=lambda x = None : self.switch_find_page('上一页'), state="disabled" if(self.now_find_page < 1) else 'normal')
-        last_page_button.place(relx=0.25, rely=1.0, anchor="se", relwidth=0.25)
-        self.contain_item['查']['上一页'] = last_page_button
-
-        next_page_button = ctk.CTkButton(find_info_page, text = '下一页', command=lambda x = None : self.switch_find_page('下一页'), state="normal")
-        next_page_button.place(relx=0.75, rely=1.0, anchor="sw", relwidth=0.25) 
-        self.contain_item['查']['下一页'] = next_page_button
-
-        self.view_page('查')
-        self.nav_buttons['查'].grid()
-        
-    def clear_frame(self, frame):
-        for widget in frame.winfo_children():
-            widget.destroy()
-
-    def generate_rks_conpound(self, scroll_frame):
-        print(f'rks组成正在生成中...')
-        start_time = time.time()
-        self.rks = 0
-        rowi = 1
-        self.clear_frame(scroll_frame)
-        b27_frame = expand_frame(scroll_frame, 'b27组成:', True)
-        b27_frame.set_color('#FFFFF0')
-        b27_frame.grid(row = rowi, column = 0, pady = 5, padx = 2, sticky = 'nsew')
-        self.contain_item['查']['b27文件夹'] = b27_frame
-        rowi += 1
-        for i in range(min(len(self.b27_list), 27)):
-            self.rks += self.b27_list[i][0]
-            song_info = self.b27_list[i][1]#(singal_rks, song_info, diffi)
-            diffi = self.b27_list[i][2]
-            
-            b27_song_label = expand_frame(b27_frame.content_frame, f'{i + 1}.{song_info['名称'][:min(len(song_info['名称']),20):]}: {self.b27_list[i][0]}',text_color = self.diff_color[diffi])
-            b27_song_label.set_color('#FFFFF0')
-            b27_song_label.grid(row = i, column = 0, pady = 5, padx = 10, sticky = 'w')
-
-            show_name = song_info['俗称'] if song_info['俗称'] and song_info['俗称'] != '无' else song_info['名称']
-            b27_hid_info = [f'名称:{show_name}', f'难度:{diffi}',f'rks:{self.b27_list[i][0]}', f'acc:{song_info[diffi]['acc']}', f'定数:{song_info[diffi]['定数']}']
-            # try:
-            #     song_image = ctk.CTkImage(
-            #         light_image=Image.open(f'rhythmgame_database/images/{song_info['歌曲id']}.png'),size=(500,250)
-            #     )
-            #     b27_hid_img_label = ctk.CTkLabel(b27_song_label.content_frame, text = '',image=song_image)
-            #     b27_hid_img_label.grid(row = 0, column = 0, pady = 5, padx = 10, sticky = 'w')
-            # except:
-            #     print('图像生成错误')
-            
-            for rowj in range(1,len(b27_hid_info)+1):#展示属性个数
-                b27_hid_info_label = ctk.CTkLabel(b27_song_label.content_frame, text = b27_hid_info[rowj-1], font = (ctext_font, 30), fg_color="#F0FFFF",width=400,anchor = 'w')
-                b27_hid_info_label.grid(row = rowj, column = 0, pady = 5, padx = 10, sticky = 'w')
-
-        phi3_frame = expand_frame(scroll_frame, 'phi3组成:', True)
-        phi3_frame.set_color('#FFFFF0')
-        phi3_frame.grid(row = rowi, column = 0, pady = 5, padx = 2, sticky = 'nsew')
-        self.contain_item['查']['phi3文件夹'] = phi3_frame
-        rowi += 1
-        for i in range(min(len(self.phi3_list), 3)):
-            self.rks += self.phi3_list[i][0]
-            song_info = self.phi3_list[i][1]#(singal_rks, song_info, diffi)
-            diffi = self.phi3_list[i][2]
-            phi3_song_label = expand_frame(phi3_frame.content_frame, f'{i + 1}.{song_info['名称'][:min(len(song_info['名称']),20):]}: {self.phi3_list[i][0]}',text_color = self.diff_color[diffi])
-            phi3_song_label.set_color('#FFFFF0')
-            phi3_song_label.grid(row = i, column = 0, pady = 5, padx = 10, sticky = 'w')
-            
-            show_name = song_info['俗称'] if song_info['俗称'] and song_info['俗称'] != '无' else song_info['名称']
-            phi3_hid_info = [f'名称:{show_name}', f'难度:{diffi}', f'rks:{self.phi3_list[i][0]}', f'acc:{song_info[diffi]['acc']}', f'定数:{song_info[diffi]['定数']}']
-            # try:
-            #     song_image = ctk.CTkImage(
-            #         light_image=Image.open(f'rhythmgame_database/images/{song_info['歌曲id']}.png'),size=(500,250)
-            #     )
-            #     phi3_hid_info_label = ctk.CTkLabel(phi3_song_label.content_frame, text = '',image=song_image)
-            #     phi3_hid_info_label.grid(row = 0, column = 0, pady = 5, padx = 10, sticky = 'w')
-            # except:
-            #     print('图像生成错误')
-            for rowj in range(1, len(phi3_hid_info) + 1):#展示属性个数
-                phi3_hid_info_label = ctk.CTkLabel(phi3_song_label.content_frame, text = phi3_hid_info[rowj - 1], font = (ctext_font, 30), fg_color="#F0FFFF",width=400, anchor = 'w')
-                phi3_hid_info_label.grid(row = rowj, column = 0, pady = 5, padx = 10, sticky = 'w')
-            
-        rks_label = ctk.CTkLabel(scroll_frame, text = f'rks={round(self.rks/30, 4)}', font = (ctext_font, 35), fg_color="#F0FFFF", width=400, anchor = 'center')
-        rks_label.grid(row = 0, column = 0, pady = 5, padx = 5, sticky = 'w')
-        self.contain_item['查']['rks文字'] = rks_label
-        
-        print(f'rks组成生成完毕,用时{round(time.time()-start_time,2)}s')
+        find_level_content_frame.grid(row=1, column=0, sticky="nsew", padx=0, pady=0)
 
     def grab_info(self):
         chrome_options = Options()
@@ -1664,19 +1635,23 @@ class phigros_data(ctk.CTk):
                 if(tr_idx == 0):
                     song_name = now_tr.text.replace(' ', '').replace('（','(').replace('）',')')
                     song_name = re.sub(r'\[\d+\]', '', song_name)
+                    song_name = self.valid_test('名称', song_name)
                     # print(f'名称:{song_name}')
 
                 elif(tr_idx == 2):
                     alltd = now_tr.find_elements(By.TAG_NAME, 'td')
-                    chapter = alltd[1].text
+                    chapter = self.valid_test('chapter', alltd[1].text)
                     # print(f'章节{chapter}')
 
                 elif(tr_idx == 3):#3td 1:BPM 3:曲师
                     alltd = now_tr.find_elements(By.TAG_NAME, 'td')
                     bpm = alltd[1].text
+                    if(self.valid_test('bpm', bpm) == '无'):
+                        bpm = '0'
                     # print(f'bpm{bpm}')
                     composer = alltd[3].text
                     composer = re.sub(r'\[\d+\]', '', composer)
+                    composer = self.valid_test('曲师', composer)
                     # print(f'曲师{composer}')
                     complex_name = f"{song_name}({composer})"
                     if(complex_name in self.song_list):
@@ -1717,14 +1692,16 @@ class phigros_data(ctk.CTk):
                 elif(tr_idx == 4):#4td 1:时长 3:画师
                     alltd = now_tr.find_elements(By.TAG_NAME, 'td')
 
-                    time_span = alltd[1].text
+                    time_span = self.valid_test('时长', alltd[1].text)
+                    if(time_span == '无'):
+                        time_span = '0.0'
                     # print(f'时长{time_span}')
                     if(song.find('时长') is not None):
                         song.find('时长').text = time_span
                     else:
                         ET.SubElement(song, '时长').text = time_span
 
-                    drawer = alltd[3].text
+                    drawer = self.valid_test('画师', alltd[3].text)
                     # print(f'画师{drawer}')
                     if(song.find('画师') is not None):
                         song.find('画师').text = drawer
@@ -1733,9 +1710,9 @@ class phigros_data(ctk.CTk):
 
                 elif(tr_idx > 5):#6 EZ 等级 定数 物量 谱师 7HD 8IN 9AT
                     alltd = now_tr.find_elements(By.TAG_NAME, 'td')
-                    level = alltd[2].text
-                    note_cnt = alltd[3].text
-                    noter = alltd[4].text 
+                    level = self.valid_test('定数', alltd[2].text)
+                    note_cnt = self.valid_test('物量', alltd[3].text)
+                    noter = self.valid_test('谱师', alltd[4].text)
                     noter = re.sub(r'\[\d+\]', '', noter)
                     now_diff = diff_dic[tr_idx]
 
@@ -1820,4 +1797,7 @@ rks组成用heap维护 防MLE 虽然只有1000的数据量(((
 在启动时预先加载好所有控件 待有所更改的时候再做维护 将destroy-grid切换页面改成了grid_remove-grid 且每个页面只有主窗口需要grid_remove 子控件由ctk的渲染树直接隐藏 既将子组件的布局范围从grid扩展到所有 还兼具效率 极大加速了页面切换的流畅度
 加入异步增量加载代码 减少预加载等待时间 加载完一个就显示一个 方便用户使用
 在父控件grid_remove(只有一个子控件但是子控件已经被grid_remove后)的情况下对子控件进行grid操作 该操作无效 于是改成在每次切换到'查'页面后更新一次显示页面
+补全了爬取时异常数据的处理 (新手教程的定数为 '-' )
+前一页有多个数据换页后只有一些数据 导致滚动条保持原来的状态以至于无法正常展示少量页的数据
+使用常量记录最高定数 减少魔法数字数量 方便更改
 '''
