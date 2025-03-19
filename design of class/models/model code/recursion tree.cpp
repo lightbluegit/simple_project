@@ -31,7 +31,7 @@ treenode* build_tree(const vector<int> val) {
     return nodes[0];
 }
 
-void pre_rec(treenode* root){
+void pre_rec(treenode* root){//递归遍历(dfs)
     if(root == nullptr) return;
     cout << root->val << ' ';
     pre_rec(root->left);
@@ -45,7 +45,7 @@ void mid_rec(treenode* root){
     mid_rec(root->right);
 }
 
-void mid_iter(treenode* root){//迭代法遍历
+void mid_iter(treenode* root){//迭代法遍历(bfs)
     if(root == nullptr) return;
     stack<treenode*>tree_stack;
     tree_stack.push(root);//预处理 给到初始状态
@@ -107,6 +107,7 @@ void cengbl(treenode* root){
     cout << "最小深度:" << min_depth;
 }
 
+
 void reverse_tree(treenode* root){//反转树(层序遍历 + 每个节点反转左右子树)
     if(root == nullptr) return;
     queue<treenode*> que;
@@ -139,7 +140,7 @@ bool HuiWen_ceng(treenode* root){//判断一个二叉树是否镜像对称
             if(cur->right) {rst.push(cur->right);
             ceng.push_back(cur->right);}
         }
-        int csize = ceng.size(), l = 0, r = csize - 1;
+        int l = 0, r = ceng.size() - 1;
         while(l <= r){
             if(ceng[l]->val != ceng[r]->val){
                 return false;
@@ -149,6 +150,22 @@ bool HuiWen_ceng(treenode* root){//判断一个二叉树是否镜像对称
         }
     }
     return true;
+}
+
+treenode* mid_lat_to_tree(vector<int>& mid_val, int midl, int midr, vector<int>lat_val, int latl, int latr){//给定中序后序遍历结果 求树
+    treenode* root = new treenode(lat_val[latr]);
+    if(latr - latl + 1 == 1){return root;}//找到叶子节点
+    int root_index = 0;
+    for(int i = midl; i <= midr; i++){
+        if(mid_val[i] == root->val){
+            root_index = i;
+            break;
+        }
+    }
+    int latlsize = root_index - midl, latrsize = midr - root_index;
+    root->left = mid_lat_to_tree(mid_val, midl, root_index - 1, lat_val, latl, latl + latlsize - 1);
+    root->right = mid_lat_to_tree(mid_val, root_index +1, midr, lat_val, latl + latlsize, latl + latlsize + latrsize - 1);
+    return root;
 }
 
 int main(){
@@ -163,11 +180,11 @@ int main(){
     // cout << endl;
     // mid_rec(root);
     // cout << endl;
-    // mid_iter(root);
+    mid_iter(root);
     // lat_rec(root);
     // cout << endl;
     // reverse_tree(root); 
-    cengbl(root);
+    // cengbl(root);
     // bool huiwen = HuiWen_ceng(root);
     // cout << huiwen;
     return 0;
@@ -175,8 +192,12 @@ int main(){
  /*
 满二叉树：每一层都是满的
 完全二叉树：可以从满二叉树的最底层最右侧依次减去子节点得到的树
-平衡二叉树（AVL）左右两子树的高度的绝对值相差不超过1且左右都是平衡二叉树
+搜索二叉树 左节点的数比根节点小 右节点的数比根节点大
+平衡二叉搜索树（AVL）左右两子树的高度的绝对值相差不超过1且左右都是平衡二叉树
 map set multimap multiset底层都是平衡二叉树 因此增删操作时间都是logn
 二叉树深度：根节点到当前节点的距离
 高度：当前节点到叶子节点的距离
+后序遍历的最后一个就是根节点的值
+
+复习；不同二叉搜索树 
 */

@@ -38,10 +38,14 @@ void slid_window(vector<int>& a, int s) {//滑动窗口找到数组中和>=指�
     cout << rst;
 }
 
-void test(){
+int gcd(int a, int b){return b == 0 ? a : gcd(b, a % b);}//a > b
 
+int lcm(int a, int b){return a * b / gcd(a, b);}
+
+void test(){
     
 }
+
 int main(){
     // freopen("E:/kafuyuno/code/c++/test1i.txt", "r", stdin);//文件io
     // freopen("E:/kafuyuno/code/c++/test1o.txt", "w", stdout);
@@ -92,12 +96,28 @@ int main(){
     //异或运算就是无进位相加(1+1=10->0) 满足交换律 结合律 0^n=0 n^n=0 (a^b=c -> a=b^c) n&(-n)可以取出最右侧的1
     //其他的数字都出现了m次 只有一个数字出现了n < m次 统计每一个数的每一位的数 如果最后这一位对m取余!=0 则这位是1 最后将01拼起来就可以得到出现次数不足的那个数字
     //判断一个数是不是3的幂:用一个足够大的3的幂取模 结果为0就是 非零就不是 
-    //
+    
     //(a+b-1)/b适用于向上取整
     string s = "123456";
     auto sub = s.substr(s.size()-3, 2);//起始位置 字符数量
     cout << sub;
     //'\n'比endl性能好 for(const auto& i : s)更快
-    reverse(s.begin() + 3, s.begin() + 4 );
+    reverse(s.begin() + 3, s.begin() + 4);
+    /*
+    动规五部曲
+    dp数组及下标含义
+    递推公式
+    dp数组初始化
+    遍历顺序
+    打印dp数组
+    复习整数拆分
+    01背包:如何暴力解决 每个物品分取与不取两种状态->可以用两种状态取最大值来表示结果
+    dp的初始化 按照递推公式最坏情况逆推 得到最终必须初始化的位置
+    遍历顺序 看着dp的图模拟遍历 可以发现 背包和重量 的顺序任意调换都可以成功遍历
+    滚动数组是否意味着只有多维dp的时候只依赖于上一层的数据才可以压缩状态?
+    */
+    /*
+    减法同余：rst = (x + mode) % mode
+    */
     return 0;
 }
