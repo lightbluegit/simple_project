@@ -117,7 +117,7 @@
   </song>
   <song id="3">
     <名称>+ERABY+ECONNEC+10N</名称>
-    <俗称>无</俗称>
+    <俗称>+++ TB连接</俗称>
     <曲师>かめりあ</曲师>
     <章节>Extra Story Chapter 极星卫</章节>
     <IN>
@@ -224,7 +224,7 @@
   </song>
   <song id="6">
     <名称>Cthugha</名称>
-    <俗称>无</俗称>
+    <俗称>古神</俗称>
     <曲师>USAO</曲师>
     <章节>Chapter EX-Muse Dash 精选集</章节>
     <AT>
@@ -340,7 +340,7 @@ Salt &amp; Simon_Axis</谱师>
   </song>
   <song id="9">
     <名称>零號車輛</名称>
-    <俗称>无</俗称>
+    <俗称>灵车</俗称>
     <曲师>seatrus</曲师>
     <章节>Chapter EX-Paradigm:Reboot 精选集</章节>
     <IN>
@@ -516,7 +516,7 @@ Destruction}</谱师>
   </song>
   <song id="14">
     <名称>Lyrith-迷宮リリス-</名称>
-    <俗称>无</俗称>
+    <俗称>滚筒洗衣机</俗称>
     <曲师>ユメミド</曲师>
     <章节>Side Story 1 忘忧宫</章节>
     <IN>
@@ -848,7 +848,7 @@ Destruction}</谱师>
   </song>
   <song id="23">
     <名称>HorizonBlue</名称>
-    <俗称>无</俗称>
+    <俗称>蓝界</俗称>
     <曲师>Nothing But Requiem feat. Aikapin &amp; Chiyoko</曲师>
     <章节>Chapter EX-Lanota 精选集</章节>
     <IN>
@@ -881,7 +881,7 @@ Destruction}</谱师>
   </song>
   <song id="24">
     <名称>RESSiSTANCE</名称>
-    <俗称>无</俗称>
+    <俗称>绿魔王</俗称>
     <曲师>ぐるたみん</曲师>
     <章节>Chapter EX-KALPA 精选集</章节>
     <IN>
@@ -914,7 +914,7 @@ Destruction}</谱师>
   </song>
   <song id="25">
     <名称>c.s.q.n.</名称>
-    <俗称>无</俗称>
+    <俗称>草酸氢钠</俗称>
     <曲师>Aoi</曲师>
     <章节>单曲精选集</章节>
     <IN>
@@ -1013,7 +1013,7 @@ Destruction}</谱师>
   </song>
   <song id="28">
     <名称>AfterDawn</名称>
-    <俗称>无</俗称>
+    <俗称>汤姆惨叫曲</俗称>
     <曲师>S9ryne</曲师>
     <章节>Side Story 2 弭刻日</章节>
     <IN>
@@ -1112,14 +1112,14 @@ Destruction}</谱师>
   </song>
   <song id="31">
     <名称>Nhelv</名称>
-    <俗称>无</俗称>
+    <俗称>你和驴</俗称>
     <曲师>Silentroom</曲师>
     <章节>单曲精选集</章节>
     <IN>
       <定数>15.6</定数>
       <acc>99.71</acc>
       <单曲rks>15.3996</单曲rks>
-      <简评>无</简评>
+      <简评>超绝子弹叠 抽搐</简评>
       <物量>833</物量>
       <谱师>森德雷斯 vs. 百九十八</谱师>
     </IN>
@@ -1285,7 +1285,7 @@ Destruction}</谱师>
   </song>
   <song id="36">
     <名称>Spasmodic</名称>
-    <俗称>无</俗称>
+    <俗称>痉挛</俗称>
     <曲师>姜米條☆颶風~♫元力上人♫</曲师>
     <章节>Chapter 5 霓虹灯牌</章节>
     <AT>
@@ -1359,7 +1359,7 @@ Destruction}</谱师>
   </song>
   <song id="38">
     <名称>Non-MelodicRagez(MUGEdit)</名称>
-    <俗称>无</俗称>
+    <俗称>震楼机 你骂人</俗称>
     <曲师>Normal1zer</曲师>
     <章节>Chapter Legacy 过去的章节</章节>
     <IN>
@@ -1532,7 +1532,7 @@ Destruction}</谱师>
   </song>
   <song id="43">
     <名称>PRAGMATISM-RESURRECTION-</名称>
-    <俗称>无</俗称>
+    <俗称>白复生</俗称>
     <曲师>Laur</曲师>
     <章节>单曲精选集</章节>
     <IN>
@@ -1659,7 +1659,7 @@ Destruction}</谱师>
   </song>
   <song id="46">
     <名称>DistortedFate</名称>
-    <俗称>无</俗称>
+    <俗称>命运扭转</俗称>
     <曲师>Sakuzyo</曲师>
     <章节>Chapter 8 凌日潮汐</章节>
     <AT>
@@ -1672,8 +1672,8 @@ Destruction}</谱师>
     </AT>
     <IN>
       <定数>16.3</定数>
-      <acc>99.64</acc>
-      <单曲rks>16.0402</单曲rks>
+      <acc>99.74</acc>
+      <单曲rks>16.1122</单曲rks>
       <简评>无</简评>
       <物量>1449</物量>
       <谱师>Divination Fortune</谱师>
@@ -1799,14 +1799,14 @@ Destruction}</谱师>
   </song>
   <song id="50">
     <名称>インフェルノシティ</名称>
-    <俗称>无</俗称>
+    <俗称>地狱之城</俗称>
     <曲师>Ponchi♪ feat. はぁち</曲师>
     <章节>单曲精选集</章节>
     <IN>
       <定数>15.7</定数>
       <acc>99.6</acc>
       <单曲rks>15.4221</单曲rks>
-      <简评>无</简评>
+      <简评>2k热身</简评>
       <物量>1275</物量>
       <谱师>Alloces</谱师>
     </IN>
@@ -2998,7 +2998,7 @@ TangScend</谱师>
   </song>
   <song id="85">
     <名称>ClassMemories</名称>
-    <俗称>无</俗称>
+    <俗称>交互课堂</俗称>
     <曲师>Antistar feat. Ctymax</曲师>
     <章节>Chapter Legacy 过去的章节</章节>
     <EZ>
@@ -3097,7 +3097,7 @@ TangScend</谱师>
   </song>
   <song id="88">
     <名称>ENERGYSYNERGYMATRIX</名称>
-    <俗称>无</俗称>
+    <俗称>ESM跑</俗称>
     <曲师>Tanchiky</曲师>
     <章节>Chapter Legacy 过去的章节</章节>
     <EZ>
@@ -3163,7 +3163,7 @@ TangScend</谱师>
   </song>
   <song id="90">
     <名称>JunXionBetweenLifeAndDeath(VIPMix)</名称>
-    <俗称>无</俗称>
+    <俗称>俊雄半死不活</俗称>
     <曲师>1N6Fs</曲师>
     <章节>Chapter 5 霓虹灯牌</章节>
     <EZ>
@@ -3361,7 +3361,7 @@ TangScend</谱师>
   </song>
   <song id="96">
     <名称>ClockParadox</名称>
-    <俗称>无</俗称>
+    <俗称>雪漠钟 时悖</俗称>
     <曲师>WyvernP</曲师>
     <章节>Chapter 7 时钟链接</章节>
     <EZ>
@@ -3460,7 +3460,7 @@ TangScend</谱师>
   </song>
   <song id="99">
     <名称>Rrhar'il</名称>
-    <俗称>无</俗称>
+    <俗称>猫娘 时间魔王</俗称>
     <曲师>Team Grimoire</曲师>
     <章节>Chapter 7 时钟链接</章节>
     <EZ>
@@ -3569,7 +3569,7 @@ TangScend</谱师>
   </song>
   <song id="102">
     <名称>Luminescence</名称>
-    <俗称>无</俗称>
+    <俗称>冷光</俗称>
     <曲师>米虾Fomiki &amp; 初云CLoudie</曲师>
     <章节>Chapter 8 凌日潮汐</章节>
     <EZ>
@@ -3677,7 +3677,7 @@ TangScend</谱师>
   </song>
   <song id="105">
     <名称>MiracleForest(VIPMix)</名称>
-    <俗称>无</俗称>
+    <俗称>油条森林</俗称>
     <曲师>Rinth_live</曲师>
     <章节>Side Story 1 忘忧宫</章节>
     <EZ>
@@ -3941,7 +3941,7 @@ TangScend</谱师>
   </song>
   <song id="113">
     <名称>Re：EndofaDream</名称>
-    <俗称>无</俗称>
+    <俗称>终梦</俗称>
     <曲师>uma vs. モリモリあつし</曲师>
     <章节>Side Story 3 盗乐行</章节>
     <EZ>
@@ -3972,7 +3972,7 @@ TangScend</谱师>
       <定数>16.9</定数>
       <acc>98.73</acc>
       <单曲rks>15.9595</单曲rks>
-      <简评>无</简评>
+      <简评>2k底力极限 4k卡手轮指</简评>
       <物量>1377</物量>
       <谱师>XMT, Encore after the end</谱师>
     </AT>
@@ -4048,7 +4048,7 @@ TangScend</谱师>
   </song>
   <song id="116">
     <名称>NightTheater</名称>
-    <俗称>无</俗称>
+    <俗称>夜剧院</俗称>
     <曲师>わかどり</曲师>
     <章节>Side Story 4 无相乡</章节>
     <EZ>
@@ -4247,7 +4247,7 @@ Gausbon</谱师>
   </song>
   <song id="122">
     <名称>Chronostasis</名称>
-    <俗称>无</俗称>
+    <俗称>时停</俗称>
     <曲师>黒皇帝</曲师>
     <章节>Chapter EX-Rising Sun Traxx 精选集</章节>
     <EZ>
@@ -4346,7 +4346,7 @@ Gausbon</谱师>
   </song>
   <song id="125">
     <名称>CROSS†SOUL</名称>
-    <俗称>无</俗称>
+    <俗称>穿魂</俗称>
     <曲师>HyuN feat. Syepias</曲师>
     <章节>Chapter EX-HyuN 精选集</章节>
     <EZ>
@@ -5558,7 +5558,7 @@ Gausbon</谱师>
   </song>
   <song id="161">
     <名称>atruthseeker-CommunicationwithUtopiawillbelost-</名称>
-    <俗称>无</俗称>
+    <俗称>真理寻者</俗称>
     <曲师>kuro</曲师>
     <章节>Chapter EX-TAKUMI³精选集</章节>
     <EZ>
@@ -5761,7 +5761,7 @@ Spy-騎士</谱师>
   </song>
   <song id="167">
     <名称>もぺもぺ</名称>
-    <俗称>无</俗称>
+    <俗称>mopemope 儿童鞋垫</俗称>
     <曲师>LeaF</曲师>
     <章节>单曲精选集</章节>
     <EZ>
@@ -5802,7 +5802,7 @@ Spy-騎士</谱师>
   </song>
   <song id="168">
     <名称>MARENOL</名称>
-    <俗称>无</俗称>
+    <俗称>骂人ol 噩梦醇</俗称>
     <曲师>LeaF</曲师>
     <章节>单曲精选集</章节>
     <EZ>
@@ -5974,7 +5974,7 @@ Spy-騎士</谱师>
   </song>
   <song id="173">
     <名称>云女孩</名称>
-    <俗称>无</俗称>
+    <俗称>云女鬼</俗称>
     <曲师>符白牙/SiYFics</曲师>
     <章节>单曲精选集</章节>
     <EZ>
@@ -6230,7 +6230,7 @@ Spy-騎士</谱师>
   </song>
   <song id="181">
     <名称>KhronostasisKatharsis</名称>
-    <俗称>无</俗称>
+    <俗称>紫时停</俗称>
     <曲师>Halv</曲师>
     <章节>单曲精选集</章节>
     <EZ>
@@ -6296,7 +6296,7 @@ Spy-騎士</谱师>
   </song>
   <song id="183">
     <名称>Burn</名称>
-    <俗称>无</俗称>
+    <俗称>考全押 烤全鸭</俗称>
     <曲师>NceS</曲师>
     <章节>单曲精选集</章节>
     <EZ>
@@ -6395,7 +6395,7 @@ Spy-騎士</谱师>
   </song>
   <song id="186">
     <名称>DeadSoul</名称>
-    <俗称>无</俗称>
+    <俗称>死鬼踏地板</俗称>
     <曲师>Sound Souler</曲师>
     <章节>单曲精选集</章节>
     <EZ>
@@ -6692,7 +6692,7 @@ Spy-騎士</谱师>
   </song>
   <song id="195">
     <名称>HardcoreKwaya</名称>
-    <俗称>无</俗称>
+    <俗称>非洲土嗨</俗称>
     <曲师>EnFr</曲师>
     <章节>单曲精选集</章节>
     <EZ>
@@ -6858,7 +6858,7 @@ in Africa shouting WAHHHHHH!</谱师>
   </song>
   <song id="200">
     <名称>Wavetapper</名称>
-    <俗称>无</俗称>
+    <俗称>鸠打电话</俗称>
     <曲师>Frums</曲师>
     <章节>单曲精选集</章节>
     <EZ>
@@ -7720,7 +7720,7 @@ Eaimo</谱师>
   </song>
   <song id="226">
     <名称>ElCondorPasa(PhigrosEdit)</名称>
-    <俗称>无</俗称>
+    <俗称>二人转</俗称>
     <曲师>Plastic Fruits</曲师>
     <章节>单曲精选集</章节>
     <EZ>
@@ -7827,7 +7827,7 @@ Eaimo</谱师>
   </song>
   <song id="229">
     <名称>PoisonAND÷ORAffection</名称>
-    <俗称>无</俗称>
+    <俗称>潘多拉</俗称>
     <曲师>LeaF</曲师>
     <章节>单曲精选集</章节>
     <EZ>
@@ -7850,7 +7850,7 @@ Eaimo</谱师>
       <定数>15.7</定数>
       <acc>99.88</acc>
       <单曲rks>15.6164</单曲rks>
-      <简评>无</简评>
+      <简评>左手位移小考验 2k热身</简评>
       <物量>888</物量>
       <谱师>1÷98</谱师>
     </IN>
