@@ -20,7 +20,6 @@ from selenium.webdriver.support import expected_conditions as EC
 py_path = 'rhythmgame_database/database.py'
 xmlpath = 'rhythmgame_database/phigros_data.xml'
 image_path_prefix = 'rhythmgame_database/images/'
-ctext_font = 'rhythmgame_database/fonts/NotoSerifSC-VariableFont_wght.ttf'
 ctitle_font = '仿宋'
 
 class ctktoplevel_frame(ctk.CTkToplevel):#副窗口
@@ -37,6 +36,7 @@ class ctktoplevel_frame(ctk.CTkToplevel):#副窗口
 class combobox_frame(ctk.CTkFrame):#下拉框+输入
     def __init__(self, master, title, button_name, values, default_value = ''):
         super().__init__(master)
+        
         self.grid_columnconfigure(0, weight=1)
         self.configure(height = 32, fg_color = "transparent")
         self.values = values
@@ -91,7 +91,7 @@ class combobox_frame(ctk.CTkFrame):#下拉框+输入
             try:
                 for widget in phigros_root.grid_item['改']['曲绘窗口'].winfo_children():
                     widget.destroy()
-                song_image = ctk.CTkImage(light_image=Image.open(image_path_prefix + f'{song_info['歌曲id']}.webp'), size=(606,320))
+                song_image = ctk.CTkImage(light_image=Image.open(image_path_prefix + f'{song_info['歌曲id']}.webp'), size=(454,240))
                 image_label = ctk.CTkLabel(phigros_root.grid_item['改']['曲绘窗口'], text = '',image=song_image)
                 image_label.grid(row = 0, column = 0, pady = 5, padx = 10, sticky = 'nsew')
             except:
@@ -108,7 +108,7 @@ class combobox_frame(ctk.CTkFrame):#下拉框+输入
             try:
                 for widget in phigros_root.grid_item['删']['曲绘窗口'].winfo_children():
                     widget.destroy()
-                song_image = ctk.CTkImage(light_image=Image.open(image_path_prefix + f'{song_info['歌曲id']}.webp'), size=(606,320))
+                song_image = ctk.CTkImage(light_image=Image.open(image_path_prefix + f'{song_info['歌曲id']}.webp'), size=(454,240))
                 image_label = ctk.CTkLabel(phigros_root.grid_item['删']['曲绘窗口'], text = '',image=song_image)
                 image_label.grid(row = 0, column = 0, pady = 5, padx = 10, sticky = 'nsew')
             except:
@@ -271,7 +271,8 @@ class expand_frame(ctk.CTkFrame):
 class phigros_data(ctk.CTk):
     def __init__(self):
         super().__init__()
-        
+        global ctext_font
+        ctext_font = 'rhythmgame_database/fonts/NotoSerifSC-VariableFont_wght.ttf'
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
         self.configure(fg_color = '#FFF5EE')
@@ -279,6 +280,7 @@ class phigros_data(ctk.CTk):
                     
         def refresh_root(event):
             self.destroy()
+            
             subprocess.run(['python', py_path])
         self.bind('<F5>', refresh_root)
 
@@ -299,7 +301,7 @@ class phigros_data(ctk.CTk):
         self.tip_song = ''; self.tip_attri = ''; self.tip_diff = ''#查找时生成提示部分必备属性
         self.addable_song = {}
         self.diff_list = ['AT', 'IN', 'HD','EZ']
-        self.diff_color = {'AT':'#BB2E26', 'IN':'#FF69B4', 'HD':'#3D71B2','EZ':'#4FB047'}
+        self.diff_color = {'AT':'#ff8aba', 'IN':'#ff6a5c', 'HD':'#3D71B2','EZ':'#5ffe5d'}
         self.commen_attri = ['歌曲id', '名称', '曲师', '俗称', '章节', 'bpm', '时长', '画师']#通用属性
         self.diff_attri = ['定数', 'acc', '单曲rks', '简评', '物量', '谱师']#难度差分属性
         self.ban_hid_attri = ['歌曲id', '章节', 'bpm', '时长', '画师', '物量', '谱师']#默认不在查找页面布局的属性
@@ -508,7 +510,7 @@ class phigros_data(ctk.CTk):
         song_info['章节'] = chapter_elm.text if chapter_elm is not None else '无'
 
         bpm_elm = songi.find('bpm')
-        song_info['bpm'] = bpm_elm.text if bpm_elm is not None else '-1'
+        song_info['bpm'] = bpm_elm.text if bpm_elm is not None else '0'
 
         time_span_elm = songi.find('时长')
         song_info['时长'] = time_span_elm.text if time_span_elm is not None else '0:0'
@@ -521,22 +523,22 @@ class phigros_data(ctk.CTk):
             if(avaliable_diff_elm is not None):
                 diff_attri = {}
                 level_elm = avaliable_diff_elm.find('定数')
-                diff_attri['定数'] = level_elm.text if level_elm is not None else '-1'
+                diff_attri['定数'] = level_elm.text if level_elm is not None else '0'
 
                 acc_elm = avaliable_diff_elm.find('acc')
-                diff_attri['acc'] = acc_elm.text if acc_elm is not None else '-1'
+                diff_attri['acc'] = acc_elm.text if acc_elm is not None else '0'
 
                 singal_rks_elm = avaliable_diff_elm.find('单曲rks')
-                diff_attri['单曲rks'] = singal_rks_elm.text if singal_rks_elm is not None else '-1'
+                diff_attri['单曲rks'] = singal_rks_elm.text if singal_rks_elm is not None else '0'
 
                 comment_elm = avaliable_diff_elm.find('简评')
-                diff_attri['简评'] = comment_elm.text if comment_elm is not None else '-1'
+                diff_attri['简评'] = comment_elm.text if comment_elm is not None else '无'
 
                 note_cnt_elm = avaliable_diff_elm.find('物量')
-                diff_attri['物量'] = note_cnt_elm.text if note_cnt_elm is not None else '-1'
+                diff_attri['物量'] = note_cnt_elm.text if note_cnt_elm is not None else '0'
 
                 noter_elm = avaliable_diff_elm.find('谱师')
-                diff_attri['谱师'] = noter_elm.text if noter_elm is not None else '-1'
+                diff_attri['谱师'] = noter_elm.text if noter_elm is not None else '无'
                 
                 song_info[diffi] = diff_attri
 
@@ -582,17 +584,15 @@ class phigros_data(ctk.CTk):
                     return str(rst)
                 else:
                     messagebox.showerror(f'{attri_type}非法范围', f'哪有数值为{rst}的歌啊?')
-                    return '无'
+                    return 'error'
             except:
-                if(attri_type == '定数'):
-                    return '0'
                 valid_char = [str(i) for i in range(10)] + ['.']
                 error_char = ''
                 for i in val:
                     if(i not in valid_char):
                         error_char += i
                 messagebox.showerror(f'{attri_type}报错', f'输入中包含 {set(error_char)} 等非法字符')
-                return '无'
+                return 'error'
         
         if(s_type == '名称'):
             if(val in self.nickname_list):
@@ -609,26 +609,31 @@ class phigros_data(ctk.CTk):
             if(val.isdigit()):
                 return str(int(val))
             messagebox.showerror(f'{s_type}非法输入', f'{s_type}必须是纯数字')
-            return '无'
+            return 'error'
+        
         elif(s_type == 'bpm'):
             valid_char = [str(i) for i in range(10)] + ['~', '.']
             for chari in val:
                 if(chari not in valid_char):
                     messagebox.showerror(f'{s_type}非法输入', f'含有非法字符{chari}')
-                    return '无'
-            return val
+                    return 'error'
+            try:
+                return str(eval(val))
+            except:
+                return val
         
         elif(s_type == '时长'):
             try:
                 if(':' in val):
                     val = val.replace(':', '.')#适应网页读取
+                val = str(eval(val))
                 if('.' in val):
                     temp_val = val
                     temp_val = temp_val.split('.')
                     if(60 < int(temp_val[1]) or int(temp_val[1]) < 0):
                         messagebox.showerror(f'{s_type}非法输入', f'哪有{temp_val[1]}秒啊?')
-                        return '无'
-                eval(val)
+                        return 'error'
+                
             except:
                 valid_char = [str(i) for i in range(10)] + ['.']
                 error_char = ''
@@ -636,7 +641,7 @@ class phigros_data(ctk.CTk):
                     if(i not in valid_char):
                         error_char += i
                 messagebox.showerror(f'{s_type}非法输入', f'时长输入中包含 {set(error_char)} 等非法字符')
-                return '无'
+                return 'error'
         
         return val
 
@@ -657,12 +662,12 @@ class phigros_data(ctk.CTk):
         add_content_frame.configure(fg_color = 'transparent')
         self.grid_item['增']['窗口'] = add_content_frame
 
-        add_name_choose = combobox_frame(add_content_frame, '歌曲名称*', '添加歌曲', song_values, 'test')
+        add_name_choose = combobox_frame(add_content_frame, '歌曲名称*', '添加歌曲', song_values)
         add_name_choose.grid(row = rowi, column = 0, pady = 5, padx = 10, sticky = 'nsew')
         self.contain_item['增']['名称'] = add_name_choose
         rowi += 1
         def filter_values(event):#模糊搜索 过滤结果
-            input_text = add_name_choose.get().strip().lower()
+            input_text = add_name_choose.get().strip().lower().replace(' ', '')
             if not input_text:
                 add_name_choose.option_menu.configure(values=song_values)
                 return
@@ -675,12 +680,12 @@ class phigros_data(ctk.CTk):
         self.contain_item['增']['俗称'] = nickname_entry
         rowi +=  1
 
-        composer_choose = combobox_frame(add_content_frame, '曲师*','增加曲师', self.composer_list, 'now')
+        composer_choose = combobox_frame(add_content_frame, '曲师*','增加曲师', self.composer_list)
         composer_choose.grid(row = rowi, column = 0, pady = 5, padx = 10, sticky = 'nsew')
         self.contain_item['增']['曲师'] = composer_choose
         rowi +=  1
 
-        bpm_entry = entry_frame(add_content_frame, '歌曲bpm:(整数)', '2333')
+        bpm_entry = entry_frame(add_content_frame, '歌曲bpm:', '2333')
         bpm_entry.grid(row = rowi, column = 0, pady = 5, padx = 10, sticky = 'nsew')
         self.contain_item['增']['bpm'] = bpm_entry
         rowi +=  1
@@ -705,17 +710,17 @@ class phigros_data(ctk.CTk):
         self.contain_item['增']['难度'] = difficulty_choose
         rowi +=  1
 
-        level_entry = entry_frame(add_content_frame, '歌曲定数*(浮点数)', '11.3')
+        level_entry = entry_frame(add_content_frame, '歌曲定数*', '11.3')
         level_entry.grid(row = rowi, column = 0, pady = 5, padx = 10, sticky = 'nsew')
         self.contain_item['增']['定数'] = level_entry
         rowi +=  1
 
-        accuracy_entry = entry_frame(add_content_frame, 'acc*(浮点数)', '66.6')
+        accuracy_entry = entry_frame(add_content_frame, 'acc*', '66.6')
         accuracy_entry.grid(row = rowi, column = 0, pady = 5, padx = 10, sticky = 'nsew')
         self.contain_item['增']['acc'] = accuracy_entry
         rowi +=  1
 
-        note_cnt_entry = entry_frame(add_content_frame, '歌曲物量:(整数)', '2085')
+        note_cnt_entry = entry_frame(add_content_frame, '歌曲物量:', '2085')
         note_cnt_entry.grid(row = rowi, column = 0, pady = 5, padx = 10, sticky = 'nsew')
         self.contain_item['增']['物量'] = note_cnt_entry
         rowi +=  1
@@ -749,7 +754,9 @@ class phigros_data(ctk.CTk):
             accuracy = self.valid_test('acc', accuracy_entry.get())
             comment = self.valid_test('简评', comment_entry.get())
             note_cnt = self.valid_test('物量', note_cnt_entry.get())
-            noter= self.valid_test('谱师', noter_entry.get())
+            noter = self.valid_test('谱师', noter_entry.get())
+            if('无' in (add_name, composer) or 'error' in (add_name, nickname, composer, bpm, time_span, drawer, chapter, level, accuracy, comment, note_cnt, noter)):
+                return
             if(comment == comment_placeholder_text):
                 comment = '无'
 
@@ -837,7 +844,7 @@ class phigros_data(ctk.CTk):
 
         select_song = combobox_frame(delete_content_frame, '选择要删除的歌曲','删除歌曲', self.song_list)
         def filter_values(event):
-            input_text = select_song.get().strip().lower()
+            input_text = select_song.get().strip().lower().replace(' ', '')
             if not input_text:
                 select_song.option_menu.configure(values=self.song_list)
                 return
@@ -961,7 +968,7 @@ class phigros_data(ctk.CTk):
         self.contain_item['改']['歌曲'] = select_song_choose
         rowi += 1
         def filter_values(event = None):
-            input_text = select_song_choose.get().strip().lower()
+            input_text = select_song_choose.get().strip().lower().replace(' ', '')
             if not input_text:
                 select_song_choose.option_menu.configure(values=self.song_list)
                 return
@@ -1010,7 +1017,7 @@ class phigros_data(ctk.CTk):
             
             attribution_value = attribution_entry.get()
             attribution_value = self.valid_test(attribution_type, attribution_value)
-            if(attribution_value == '无'): return
+            if(attribution_value in ('无', 'error')): return
             if(attribution_type in self.diff_attri):#更改难度相关属性
                 messagebox.showinfo("更改",f"{song_name}({difficulty}){attribution_type}:{diff_elm.find(attribution_type).text}->{attribution_value}")
                 diff_elm.find(attribution_type).text = attribution_value
@@ -1340,7 +1347,7 @@ class phigros_data(ctk.CTk):
                         max_num = self.MAX_LEVEL
                 else:
                     max_num = self.valid_test(page, max_num)
-                if('无' in (min_num, max_num)):
+                if('error' in (min_num, max_num)):
                     messagebox.showerror('', f'你这{page}输入有问题啊')
                     return
                 
@@ -1433,7 +1440,7 @@ class phigros_data(ctk.CTk):
             rowi = 0
             if('曲绘' not in self.ban_hid_attri):
                 try:
-                    song_image = ctk.CTkImage(light_image=Image.open(image_path_prefix + f'{song_info['歌曲id']}.webp'), size=(606,320))
+                    song_image = ctk.CTkImage(light_image=Image.open(image_path_prefix + f'{song_info['歌曲id']}.webp'), size=(454,240))
                     image_label = ctk.CTkLabel(songi_frame.content_frame, text = '',image=song_image)
                     image_label.grid(row = rowi, column = 0, pady = 5, padx = 10, sticky = 'w')
                     rowi += 1
@@ -1448,7 +1455,7 @@ class phigros_data(ctk.CTk):
                     continue
                 if(type(attri) != type({1:1})):
                     # print(f'{titlei}:{attri}')
-                    info_label = ctk.CTkLabel(songi_frame.content_frame, text=f'{titlei}:{attri}', fg_color="#F0FFFF",text_color = self.diff_color[difficulty], corner_radius=6, width=300, anchor='w')
+                    info_label = ctk.CTkLabel(songi_frame.content_frame, text=f'{titlei}:{attri}', fg_color="#F0FFFF", corner_radius=6, width=300, anchor='w')
                     info_label.grid(row=rowi, column=0, padx=10, pady=5, sticky="w")
                     rowi += 1
                 else:
@@ -1456,7 +1463,7 @@ class phigros_data(ctk.CTk):
                         if(dic_titlei in self.ban_hid_attri):#禁止分级属性
                             continue
                         # print(f'{dic_titlei}:{dic_attri}')
-                        info_label = ctk.CTkLabel(songi_frame.content_frame, text=f'{dic_titlei}:{dic_attri}', fg_color="#F0FFFF",text_color = self.diff_color[difficulty], corner_radius=6, width=300, anchor='w')
+                        info_label = ctk.CTkLabel(songi_frame.content_frame, text=f'{dic_titlei}:{dic_attri}', fg_color="#F0FFFF", corner_radius=6, width=300, anchor='w')
                         info_label.grid(row=rowi, column=0, padx=10, pady=5, sticky="w")
                         rowi += 1
 
@@ -1494,7 +1501,7 @@ class phigros_data(ctk.CTk):
             b27_hid_info = [f'名称:{show_name}', f'难度:{diffi}',f'rks:{self.b27_list[i][0]}', f'acc:{song_info[diffi]['acc']}', f'定数:{song_info[diffi]['定数']}']
             try:
                 song_image = ctk.CTkImage(
-                    light_image=Image.open(image_path_prefix + f'{song_info['歌曲id']}.webp'),size=(606,320)
+                    light_image=Image.open(image_path_prefix + f'{song_info['歌曲id']}.webp'),size=(454,240)
                 )
                 b27_hid_img_label = ctk.CTkLabel(b27_song_label.content_frame, text = '',image=song_image)
                 b27_hid_img_label.grid(row = 0, column = 0, pady = 5, padx = 10, sticky = 'w')
@@ -1523,7 +1530,7 @@ class phigros_data(ctk.CTk):
             phi3_hid_info = [f'名称:{show_name}', f'难度:{diffi}', f'rks:{self.phi3_list[i][0]}', f'acc:{song_info[diffi]['acc']}', f'定数:{song_info[diffi]['定数']}']
             try:
                 song_image = ctk.CTkImage(
-                    light_image=Image.open(image_path_prefix + f'{song_info['歌曲id']}.webp'),size=(606,320)
+                    light_image=Image.open(image_path_prefix + f'{song_info['歌曲id']}.webp'),size=(454,240)
                 )
                 phi3_hid_info_label = ctk.CTkLabel(phi3_song_label.content_frame, text = '',image=song_image)
                 phi3_hid_info_label.grid(row = 0, column = 0, pady = 5, padx = 10, sticky = 'w')
@@ -1570,7 +1577,7 @@ class phigros_data(ctk.CTk):
         rowi += 1
 
         def filter_values(event):
-            input_text = select_song.get().strip().lower()
+            input_text = select_song.get().strip().lower().replace(' ', '')
             if not input_text:
                 select_song.option_menu.configure(values=seek_list)
                 return
@@ -1784,7 +1791,7 @@ class phigros_data(ctk.CTk):
                 elif(tr_idx == 3):#3td 1:BPM 3:曲师
                     alltd = now_tr.find_elements(By.TAG_NAME, 'td')
                     bpm = alltd[1].text
-                    if(self.valid_test('bpm', bpm) == '无'):
+                    if(self.valid_test('bpm', bpm) == 'error'):
                         bpm = '0'
                     # print(f'bpm{bpm}')
                     composer = alltd[3].text
@@ -1831,7 +1838,7 @@ class phigros_data(ctk.CTk):
                     alltd = now_tr.find_elements(By.TAG_NAME, 'td')
 
                     time_span = self.valid_test('时长', alltd[1].text)
-                    if(time_span == '无'):
+                    if(time_span == 'error'):
                         time_span = '0.0'
                     # print(f'时长{time_span}')
                     if(song.find('时长') is not None):
@@ -1849,7 +1856,11 @@ class phigros_data(ctk.CTk):
                 elif(tr_idx > 5):#6 EZ 等级 定数 物量 谱师 7HD 8IN 9AT
                     alltd = now_tr.find_elements(By.TAG_NAME, 'td')
                     level = self.valid_test('定数', alltd[2].text)
+                    if(level == 'error'):
+                        level = '0'
                     note_cnt = self.valid_test('物量', alltd[3].text)
+                    if(note_cnt == 'error'):
+                        note_cnt = '0'
                     noter = self.valid_test('谱师', alltd[4].text)
                     noter = re.sub(r'\[\d+\]', '', noter)
                     now_diff = diff_dic[tr_idx]
