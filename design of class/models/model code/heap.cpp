@@ -6,6 +6,10 @@ void heapinsert(int arr[], int pos){
         swap(arr[pos], arr[(pos - 1) / 2]);
         pos = (pos - 1) / 2;
     }
+    for(int i = 0; i < 6;i++){
+        cout << arr[i] << ' ';
+    }
+    cout << endl;
 }
 
 void heapify(int arr[], int i, int size){
@@ -24,18 +28,19 @@ void heapsort(int arr[], int n){
     for(int i = 0; i < n; i++){
         heapinsert(arr, i);
     }
+    
     int size = n;
     while(size > 1){
         swap(arr[0], arr[--size]);
         heapify(arr, 0, size);
     }
-    // for(int i = 0; i < n; i++){
-    //     cout << arr[i] << ' ';
-    // }
+    for(int i = 0; i < n; i++){
+        cout << arr[i] << ' ';
+    }
 }
 int main(){
-    int a[7] = {6,7,5,4,3,1,2};
-    heapsort(a, 7);
+    int a[6] = {3,5,4,2,1,6};
+    heapsort(a, 6);
     return 0;
 }
 /*

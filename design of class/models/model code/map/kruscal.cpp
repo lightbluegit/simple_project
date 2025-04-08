@@ -32,8 +32,9 @@ int main() {
         cin >> x >> y >> k;
         edg.push_back({x, y, k});
     }
-    sort(edg.begin(), edg.end(), [](const edge& a, const edge& b) {
-            return a.edge_val < b.edge_val;
+    sort(edg.begin(), edg.end(), 
+        [](const edge& a, const edge& b) {//捕获列表（此处为空，表示不捕获任何外部变量） 参数列表
+            return a.edge_val < b.edge_val;// < 就是从小到大
     });
     // for(const auto& i : edg){
     //     cout << i.l << '-' << i.r << endl;
@@ -46,7 +47,7 @@ int main() {
         }
     }
     for(const auto& i : path){
-        cout << i.l << '-' << i.r << endl;
+        printf("%d->%d:%d\n", i.l, i.r, i.edge_val);
     }
     return 0;
 }
@@ -63,4 +64,11 @@ int main() {
 5 6 2
 5 7 1
 6 7 1
+
+1->2:1
+1->3:1
+2->6:1
+3->4:1
+4->5:1
+5->7:1
 */

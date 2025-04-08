@@ -4,7 +4,7 @@ struct treenode{
     int val;
     treenode* left;
     treenode* right;
-    treenode(int val, int ceng = 0):
+    treenode(int val):
         val(val),
         left(nullptr),
         right(nullptr)

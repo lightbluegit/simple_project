@@ -45,7 +45,7 @@
     <名称>FracturedAngel</名称>
     <俗称>无</俗称>
     <曲师>DJ Raisei</曲师>
-    <章节>单曲精选集</章节>
+    <章节>Chapter EX-EGTS精选集</章节>
     <IN>
       <定数>16.3</定数>
       <acc>99.55</acc>
@@ -71,7 +71,7 @@
       <谱师>Su1fuR</谱师>
     </HD>
     <bpm>301</bpm>
-    <时长>3.00</时长>
+    <时长>3.0</时长>
     <画师>OsuMe65</画师>
   </song>
   <song id="2">
@@ -334,7 +334,7 @@ Salt &amp; Simon_Axis</谱师>
       <物量>662</物量>
       <谱师>ANGER&amp;SORROW &gt;^&lt; LDA</谱师>
     </HD>
-    <bpm>0</bpm>
+    <bpm>240~280</bpm>
     <时长>2.42</时长>
     <画师>御坂果子</画师>
   </song>
@@ -510,7 +510,7 @@ Destruction} </谱师>
       <谱师>{Devastation,
 Destruction}</谱师>
     </HD>
-    <bpm>0</bpm>
+    <bpm>321.321</bpm>
     <时长>2.38</时长>
     <画师>rN</画师>
   </song>
@@ -1106,8 +1106,8 @@ Destruction}</谱师>
       <物量>531</物量>
       <谱师>Clutter</谱师>
     </HD>
-    <bpm>0</bpm>
-    <时长>2.20</时长>
+    <bpm>35~400</bpm>
+    <时长>2.2</时长>
     <画师>Optie</画师>
   </song>
   <song id="31">
@@ -1139,7 +1139,7 @@ Destruction}</谱师>
       <物量>571</物量>
       <谱师>StupiGGy</谱师>
     </HD>
-    <bpm>0</bpm>
+    <bpm>174.59</bpm>
     <时长>2.39</时长>
     <画师>駿</画师>
   </song>
@@ -1420,7 +1420,7 @@ Destruction}</谱师>
       <谱师>Barbarianerman</谱师>
     </HD>
     <bpm>128</bpm>
-    <时长>2.40</时长>
+    <时长>2.4</时长>
     <画师>茶鸣拾贰律</画师>
   </song>
   <song id="40">
@@ -1654,7 +1654,7 @@ Destruction}</谱师>
       <谱师>Δ (M3d1uM vs Salt)</谱师>
     </HD>
     <bpm>172</bpm>
-    <时长>2.20</时长>
+    <时长>2.2</时长>
     <画师>釜飯轟々丸+jht (Design：祈莲)</画师>
   </song>
   <song id="46">
@@ -1761,7 +1761,7 @@ Destruction}</谱师>
       <谱师>monochrome ILLUSION</谱师>
     </HD>
     <bpm>205</bpm>
-    <时长>2.20</时长>
+    <时长>2.2</时长>
     <画师>久世</画师>
   </song>
   <song id="49">
@@ -1961,7 +1961,7 @@ Destruction}</谱师>
       <谱师>Su1fuR</谱师>
     </HD>
     <bpm>155</bpm>
-    <时长>2.30</时长>
+    <时长>2.3</时长>
     <画师>mology (青鸟&amp;V17AMax Modified)</画师>
   </song>
   <song id="55">
@@ -2661,7 +2661,7 @@ Destruction}</谱师>
       <谱师>_鉄 (Isotope 59) </谱师>
     </AT>
     <bpm>179</bpm>
-    <时长>1.40</时长>
+    <时长>1.4</时长>
     <画师>Ctymax</画师>
   </song>
   <song id="75">
@@ -3388,7 +3388,7 @@ TangScend</谱师>
       <谱师>Barbarianerman vs. Alloces</谱师>
     </IN>
     <bpm>140</bpm>
-    <时长>2.30</时长>
+    <时长>2.3</时长>
     <画师>汉堡</画师>
   </song>
   <song id="97">
@@ -3704,7 +3704,7 @@ TangScend</谱师>
       <谱师>奇跡の希 feat. 奇跡の従</谱师>
     </IN>
     <bpm>192</bpm>
-    <时长>2.50</时长>
+    <时长>2.5</时长>
     <画师>L-sp4</画师>
   </song>
   <song id="106">
@@ -4076,7 +4076,7 @@ TangScend</谱师>
 Gausbon</谱师>
     </IN>
     <bpm>151</bpm>
-    <时长>2.00</时长>
+    <时长>2.0</时长>
     <画师>青鸟</画师>
   </song>
   <song id="117">
@@ -4345,7 +4345,7 @@ Gausbon</谱师>
   </song>
   <song id="125">
     <名称>CROSS†SOUL</名称>
-    <俗称>无</俗称>
+    <俗称>穿魂</俗称>
     <曲师>HyuN feat. Syepias</曲师>
     <章节>Chapter EX-HyuN 精选集</章节>
     <EZ>
@@ -4366,8 +4366,8 @@ Gausbon</谱师>
     </HD>
     <IN>
       <定数>16.4</定数>
-      <acc>99.04</acc>
-      <单曲rks>15.7077</单曲rks>
+      <acc>99.46</acc>
+      <单曲rks>16.0088</单曲rks>
       <简评>无</简评>
       <物量>1305</物量>
       <谱师>無†極</谱师>
@@ -4604,7 +4604,7 @@ Gausbon</谱师>
       <谱师>StupiGGy</谱师>
     </IN>
     <bpm>142</bpm>
-    <时长>2.10</时长>
+    <时长>2.1</时长>
     <画师>あおお/A-ZERO,morph</画师>
   </song>
   <song id="133">
@@ -4644,7 +4644,7 @@ Gausbon</谱师>
       <物量>1650</物量>
       <谱师>Alloces</谱师>
     </AT>
-    <bpm>0</bpm>
+    <bpm>191~382</bpm>
     <时长>2.16</时长>
     <画师>あおお/A-ZERO,morph</画师>
   </song>
@@ -4983,7 +4983,7 @@ Gausbon</谱师>
       <谱师>NerSAN sipping XMTea</谱师>
     </IN>
     <bpm>131</bpm>
-    <时长>2.10</时长>
+    <时长>2.1</时长>
     <画师>茶鸣拾贰律</画师>
   </song>
   <song id="144">
@@ -5082,7 +5082,7 @@ Gausbon</谱师>
       <谱师>P &amp; U</谱师>
     </IN>
     <bpm>130</bpm>
-    <时长>2.30</时长>
+    <时长>2.3</时长>
     <画师>mology (青鸟&amp;V17AMax Modified)</画师>
   </song>
   <song id="147">
@@ -5519,7 +5519,7 @@ Gausbon</谱师>
       <谱师>Jky vs StrayCat</谱师>
     </AT>
     <bpm>194</bpm>
-    <时长>2.40</时长>
+    <时长>2.4</时长>
     <画师>sikkari</画师>
   </song>
   <song id="160">
@@ -5722,7 +5722,7 @@ Spy-騎士</谱师>
       <谱师>198 in Kowloon</谱师>
     </IN>
     <bpm>190</bpm>
-    <时长>3.00</时长>
+    <时长>3.0</时长>
     <画师>鲸弑</画师>
   </song>
   <song id="166">
@@ -5796,7 +5796,7 @@ Spy-騎士</谱师>
       <谱师>阿爽</谱师>
     </AT>
     <bpm>100</bpm>
-    <时长>1.50</时长>
+    <时长>1.5</时长>
     <画师>Cycats</画师>
   </song>
   <song id="168">
@@ -6356,7 +6356,7 @@ Spy-騎士</谱师>
       <谱师>Gausbon ~ See you next time ~</谱师>
     </IN>
     <bpm>175</bpm>
-    <时长>1.50</时长>
+    <时长>1.5</时长>
     <画师>叶藤</画师>
   </song>
   <song id="185">
@@ -6455,7 +6455,7 @@ Spy-騎士</谱师>
       <谱师>Ctymax VS 百九十八</谱师>
     </IN>
     <bpm>145</bpm>
-    <时长>2.20</时长>
+    <时长>2.2</时长>
     <画师>TNiK</画师>
   </song>
   <song id="188">
@@ -6619,8 +6619,8 @@ Spy-騎士</谱师>
       <物量>724</物量>
       <谱师>鲲 fixed by 百九十八</谱师>
     </IN>
-    <bpm>0</bpm>
-    <时长>2.10</时长>
+    <bpm>100~120</bpm>
+    <时长>2.1</时长>
     <画师>何呵</画师>
   </song>
   <song id="193">
@@ -6720,7 +6720,7 @@ Spy-騎士</谱师>
 in Africa shouting WAHHHHHH!</谱师>
     </IN>
     <bpm>200</bpm>
-    <时长>2.00</时长>
+    <时长>2.0</时长>
     <画师>EnFr</画师>
   </song>
   <song id="196">
@@ -6752,8 +6752,8 @@ in Africa shouting WAHHHHHH!</谱师>
       <物量>954</物量>
       <谱师>Barbarianerman vs. Snorkel</谱师>
     </IN>
-    <bpm>0</bpm>
-    <时长>2.40</时长>
+    <bpm>114~132</bpm>
+    <时长>2.4</时长>
     <画师>Grand Thaw / Rigël Theatre</画师>
   </song>
   <song id="197">
@@ -6852,7 +6852,7 @@ in Africa shouting WAHHHHHH!</谱师>
       <谱师>Pat Brick Man Mr.C</谱师>
     </IN>
     <bpm>158</bpm>
-    <时长>2.00</时长>
+    <时长>2.0</时长>
     <画师>geralt</画师>
   </song>
   <song id="200">
@@ -7578,7 +7578,7 @@ in Africa shouting WAHHHHHH!</谱师>
       <谱师>NerSAN feat. Takanashi Rikko</谱师>
     </IN>
     <bpm>170</bpm>
-    <时长>2.00</时长>
+    <时长>2.0</时长>
     <画师>わっふゑ</画师>
   </song>
   <song id="222">
@@ -7821,7 +7821,7 @@ Eaimo</谱师>
       <谱师>Believe Ctymax &amp; TimiTini</谱师>
     </IN>
     <bpm>150</bpm>
-    <时长>2.50</时长>
+    <时长>2.5</时长>
     <画师>圆规compasses</画师>
   </song>
   <song id="229">
@@ -8092,7 +8092,7 @@ Eaimo</谱师>
     <名称>SilenceisGolden,SpeechisGolden</名称>
     <俗称>沉默是金</俗称>
     <曲师>NIWASHI</曲师>
-    <章节>单曲精选集</章节>
+    <章节>Chapter EX-EGTS精选集</章节>
     <EZ>
       <定数>5.0</定数>
       <acc>0</acc>
@@ -8151,7 +8151,7 @@ Eaimo</谱师>
       <谱师>Ner ~ See you next time ~</谱师>
     </IN>
     <bpm>160</bpm>
-    <时长>2.40</时长>
+    <时长>2.4</时长>
     <画师>海产</画师>
   </song>
   <song id="239">
@@ -8316,7 +8316,7 @@ Eaimo</谱师>
       <谱师>Salt &amp; Uvernight</谱师>
     </IN>
     <bpm>170</bpm>
-    <时长>2.40</时长>
+    <时长>2.4</时长>
     <画师>海里狄七 feat. 存艺</画师>
   </song>
   <song id="244">
@@ -8415,7 +8415,7 @@ Eaimo</谱师>
       <谱师>WhiteCat.</谱师>
     </IN>
     <bpm>170</bpm>
-    <时长>2.30</时长>
+    <时长>2.3</时长>
     <画师>临时工&amp;倪尔</画师>
   </song>
   <song id="247">
@@ -8952,15 +8952,155 @@ Eaimo</谱师>
     <俗称>无</俗称>
     <章节>--</章节>
     <bpm>138</bpm>
-    <时长>2.30</时长>
+    <时长>2.3</时长>
     <画师>L-sp4</画师>
     <EZ>
       <物量>93</物量>
       <谱师>Barbarianerman</谱师>
-      <定数>无</定数>
+      <定数>0</定数>
       <acc>0</acc>
       <单曲rks>0</单曲rks>
       <简评>无</简评>
     </EZ>
+  </song>
+  <song id="265">
+    <曲师>Gomadare</曲师>
+    <名称>Resolver</名称>
+    <俗称>无</俗称>
+    <章节>Chapter EX-EGTS精选集</章节>
+    <bpm>123</bpm>
+    <时长>2.4</时长>
+    <画师>Transendium</画师>
+    <EZ>
+      <物量>128</物量>
+      <谱师>Salt</谱师>
+      <定数>3.0</定数>
+      <acc>0</acc>
+      <单曲rks>0</单曲rks>
+      <简评>无</简评>
+    </EZ>
+    <HD>
+      <物量>339</物量>
+      <谱师>Salt</谱师>
+      <定数>8.8</定数>
+      <acc>0</acc>
+      <单曲rks>0</单曲rks>
+      <简评>无</简评>
+    </HD>
+    <IN>
+      <物量>993</物量>
+      <谱师>Clutter vs. Salt</谱师>
+      <定数>14.5</定数>
+      <acc>0</acc>
+      <单曲rks>0</单曲rks>
+      <简评>无</简评>
+    </IN>
+  </song>
+  <song id="266">
+    <曲师>NormalM feat. Usagi Denki</曲师>
+    <名称>LuminousEntitiesLostHeart</名称>
+    <俗称>无</俗称>
+    <章节>Chapter EX-EGTS精选集</章节>
+    <bpm>200</bpm>
+    <时长>2.47</时长>
+    <画师>Transendium</画师>
+    <EZ>
+      <物量>275</物量>
+      <谱师>1uminous StaR</谱师>
+      <定数>5.0</定数>
+      <acc>0</acc>
+      <单曲rks>0</单曲rks>
+      <简评>无</简评>
+    </EZ>
+    <HD>
+      <物量>461</物量>
+      <谱师>1uminous StaR</谱师>
+      <定数>10.9</定数>
+      <acc>0</acc>
+      <单曲rks>0</单曲rks>
+      <简评>无</简评>
+    </HD>
+    <IN>
+      <物量>929</物量>
+      <谱师>光る星</谱师>
+      <定数>15.2</定数>
+      <acc>0</acc>
+      <单曲rks>0</单曲rks>
+      <简评>无</简评>
+    </IN>
+  </song>
+  <song id="267">
+    <曲师>TAG</曲师>
+    <名称>KIZUNAResolution</名称>
+    <俗称>无</俗称>
+    <章节>Chapter EX-EGTS精选集</章节>
+    <bpm>240</bpm>
+    <时长>2.14</时长>
+    <画师>Transendium</画师>
+    <EZ>
+      <物量>262</物量>
+      <谱师>Likey underground</谱师>
+      <定数>8.0</定数>
+      <acc>0</acc>
+      <单曲rks>0</单曲rks>
+      <简评>无</简评>
+    </EZ>
+    <HD>
+      <物量>722</物量>
+      <谱师>HD R.esolution</谱师>
+      <定数>13.4</定数>
+      <acc>0</acc>
+      <单曲rks>0</单曲rks>
+      <简评>无</简评>
+    </HD>
+    <IN>
+      <物量>1039</物量>
+      <谱师>Sempiternal Fxxxxxx Resolution!</谱师>
+      <定数>16.4</定数>
+      <acc>0</acc>
+      <单曲rks>0</单曲rks>
+      <简评>无</简评>
+    </IN>
+  </song>
+  <song id="268">
+    <曲师>Acute Disarray</曲师>
+    <名称>AbsoluTedisoRdeR</名称>
+    <俗称>无</俗称>
+    <章节>Chapter EX-EGTS精选集</章节>
+    <bpm>256</bpm>
+    <时长>3.09</时长>
+    <画师>Kyuare &amp; Wsx</画师>
+    <EZ>
+      <物量>766</物量>
+      <谱师>Su1fuR</谱师>
+      <定数>6.5</定数>
+      <acc>0</acc>
+      <单曲rks>0</单曲rks>
+      <简评>无</简评>
+    </EZ>
+    <HD>
+      <物量>1046</物量>
+      <谱师>騎士 vs. Knight</谱师>
+      <定数>12.3</定数>
+      <acc>0</acc>
+      <单曲rks>0</单曲rks>
+      <简评>无</简评>
+    </HD>
+    <IN>
+      <物量>1600</物量>
+      <谱师>Executor-X</谱师>
+      <定数>16.2</定数>
+      <acc>0</acc>
+      <单曲rks>0</单曲rks>
+      <简评>无</简评>
+    </IN>
+    <AT>
+      <物量>2025</物量>
+      <谱师>Apocalyptic Dissonance</谱师>
+      <定数>17.2</定数>
+      <acc>0</acc>
+      <单曲rks>0</单曲rks>
+      <简评>无</简评>
+    </AT>
   </song>
 </phigros>

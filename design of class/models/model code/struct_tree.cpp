@@ -28,8 +28,7 @@ treenode* fstruct_ceng(vector<char>& ceng_list){//1 2 3 # # # 4 # #
     while(!qu.empty()){
         int size = qu.size();
         for(int i = 0; i < size; i++){
-            treenode* cur = qu.front();
-            qu.pop();
+            treenode* cur = qu.front(); qu.pop();
             if(ceng_list[idx] != '#'){
                 treenode* left = new treenode(ceng_list[idx]);
                 cur->left = left;

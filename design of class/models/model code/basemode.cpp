@@ -103,6 +103,10 @@ int main(){
     cout << sub;
     //'\n'比endl性能好 for(const auto& i : s)更快
     reverse(s.begin() + 3, s.begin() + 4);
+    // sort(edg.begin(), edg.end(), 
+    //     [](const edge& a, const edge& b) {//捕获列表（此处为空，表示不捕获任何外部变量） 参数列表
+    //         return a.edge_val < b.edge_val;// < 就是从小到大
+    // });
     /*
     动规五部曲
     dp数组及下标含义

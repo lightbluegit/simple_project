@@ -1,7 +1,6 @@
 #include<bits/stdc++.h>
 using namespace std;
 struct list_node {
-    // 成员变量声明
     int val;
     list_node* next;
     // 创建结构体或类的实例时自动调用构造函数 必须与类或结构体同名 这样编译器才能识别它为构造函数
@@ -46,7 +45,7 @@ void print_node(list_node* head) {
 list_node* reverseList(list_node* head) {
     list_node* pre = nullptr;//从后改成前应该指向哪
     list_node* next = nullptr;//head的下一个节点在哪
-    while (head != nullptr) {
+    while (head) {
         next = head->next;
         head->next = pre;//反转next节点
         pre = head;//pre向后移动
@@ -149,7 +148,3 @@ int main(){
     delete_node(total_head);
     return 0;
 }
-/*
-新标准C++程序设计
-978-7-5766-0287-6
-*/

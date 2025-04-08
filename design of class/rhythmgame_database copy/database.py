@@ -91,7 +91,7 @@ class combobox_frame(ctk.CTkFrame):#下拉框+输入
             try:
                 for widget in phigros_root.grid_item['改']['曲绘窗口'].winfo_children():
                     widget.destroy()
-                song_image = ctk.CTkImage(light_image=Image.open(image_path_prefix + f'{song_info['歌曲id']}.webp'), size=(454,240))
+                song_image = ctk.CTkImage(light_image=Image.open(image_path_prefix + f'{song_info['歌曲id']}.png'), size=(454,240))
                 image_label = ctk.CTkLabel(phigros_root.grid_item['改']['曲绘窗口'], text = '',image=song_image)
                 image_label.grid(row = 0, column = 0, pady = 5, padx = 10, sticky = 'nsew')
             except:
@@ -108,7 +108,7 @@ class combobox_frame(ctk.CTkFrame):#下拉框+输入
             try:
                 for widget in phigros_root.grid_item['删']['曲绘窗口'].winfo_children():
                     widget.destroy()
-                song_image = ctk.CTkImage(light_image=Image.open(image_path_prefix + f'{song_info['歌曲id']}.webp'), size=(454,240))
+                song_image = ctk.CTkImage(light_image=Image.open(image_path_prefix + f'{song_info['歌曲id']}.png'), size=(454,240))
                 image_label = ctk.CTkLabel(phigros_root.grid_item['删']['曲绘窗口'], text = '',image=song_image)
                 image_label.grid(row = 0, column = 0, pady = 5, padx = 10, sticky = 'nsew')
             except:
@@ -1440,7 +1440,7 @@ class phigros_data(ctk.CTk):
             rowi = 0
             if('曲绘' not in self.ban_hid_attri):
                 try:
-                    song_image = ctk.CTkImage(light_image=Image.open(image_path_prefix + f'{song_info['歌曲id']}.webp'), size=(454,240))
+                    song_image = ctk.CTkImage(light_image=Image.open(image_path_prefix + f'{song_info['歌曲id']}.png'), size=(454,240))
                     image_label = ctk.CTkLabel(songi_frame.content_frame, text = '',image=song_image)
                     image_label.grid(row = rowi, column = 0, pady = 5, padx = 10, sticky = 'w')
                     rowi += 1
@@ -1501,7 +1501,7 @@ class phigros_data(ctk.CTk):
             b27_hid_info = [f'名称:{show_name}', f'难度:{diffi}',f'rks:{self.b27_list[i][0]}', f'acc:{song_info[diffi]['acc']}', f'定数:{song_info[diffi]['定数']}']
             try:
                 song_image = ctk.CTkImage(
-                    light_image=Image.open(image_path_prefix + f'{song_info['歌曲id']}.webp'),size=(454,240)
+                    light_image=Image.open(image_path_prefix + f'{song_info['歌曲id']}.png'),size=(454,240)
                 )
                 b27_hid_img_label = ctk.CTkLabel(b27_song_label.content_frame, text = '',image=song_image)
                 b27_hid_img_label.grid(row = 0, column = 0, pady = 5, padx = 10, sticky = 'w')
@@ -1530,7 +1530,7 @@ class phigros_data(ctk.CTk):
             phi3_hid_info = [f'名称:{show_name}', f'难度:{diffi}', f'rks:{self.phi3_list[i][0]}', f'acc:{song_info[diffi]['acc']}', f'定数:{song_info[diffi]['定数']}']
             try:
                 song_image = ctk.CTkImage(
-                    light_image=Image.open(image_path_prefix + f'{song_info['歌曲id']}.webp'),size=(454,240)
+                    light_image=Image.open(image_path_prefix + f'{song_info['歌曲id']}.png'),size=(454,240)
                 )
                 phi3_hid_info_label = ctk.CTkLabel(phi3_song_label.content_frame, text = '',image=song_image)
                 phi3_hid_info_label.grid(row = 0, column = 0, pady = 5, padx = 10, sticky = 'w')
@@ -1738,11 +1738,12 @@ class phigros_data(ctk.CTk):
 
 
     def grab_info(self):#能跑就行
-        os.environ["CFT_CDN_URL"] = "https://mirrors.cloud.tencent.com/chrome-for-testing"# 强制指定国内镜像源
+        # os.environ["CFT_CDN_URL"] = "https://mirrors.cloud.tencent.com/chrome-for-testing"# 强制指定国内镜像源
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
         options = webdriver.ChromeOptions()
-        options.add_argument('--ignore-certificate-errors')
-        # 禁用部分安全策略（兼容性）
-        options.add_argument('--disable-features=SSLClientHelloGeneration')
+        options.add_argument("--headless=new")
+        options.add_argument("--disable-images")
+        options.page_load_strategy = "eager"
         driver = webdriver.Chrome(options=options)# 忽略证书错误（仅测试环境使用）
         driver.get("https://mzh.moegirl.org.cn/Phigros/%E8%B0%B1%E9%9D%A2%E4%BF%A1%E6%81%AF")#打开萌娘百科-phi-曲目信息
         wait = WebDriverWait(driver, 2)
@@ -1902,42 +1903,16 @@ class phigros_data(ctk.CTk):
 
             img_path = tablei.find_element(By.CSS_SELECTOR, 'img.lazyload').get_attribute("data-lazy-src")
             # print(f'img_path = {img_path}')
-            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-            # response = requests.get(img_path, headers=headers)
-            # response.raise_for_status()
-            # if not os.path.exists(image_path_prefix):
-            #     os.makedirs(image_path_prefix)
-            # full_path = os.path.join(image_path_prefix, f"{song_id}.png")
-            # with open(full_path, 'wb') as f:
-            #     f.write(response.content)
+            response = requests.get(img_path, headers=headers)
+            response.raise_for_status()
+            if not os.path.exists(image_path_prefix):
+                os.makedirs(image_path_prefix)
+            full_path = os.path.join(image_path_prefix, f"{song_id}.png")
+            with open(full_path, 'wb') as f:
+                f.write(response.content)
             response = requests.get(img_path, headers=headers)
             response.raise_for_status()
 
-            # 创建存储目录（兼容webp/png双格式）
-            # image_dir = os.path.join(image_path_prefix, "webp")
-            os.makedirs(image_path_prefix, exist_ok=True)
-
-            # 动态生成文件名（智能格式转换）
-            file_ext = "webp"
-            full_path = os.path.join(image_path_prefix, f"{song_id}.{file_ext}")
-            # 内存中直接转换（无需临时文件）
-            from PIL import Image
-            from io import BytesIO
-            try:
-                with Image.open(BytesIO(response.content)) as img:
-                    # 高级压缩参数（质量/速度平衡）
-                    img.save(
-                        full_path,
-                        format="WEBP",
-                        quality=85,          # 质量系数（0-100）
-                        method=5,            # 编码速度（0-6，6最慢但压缩率最高）
-                        lossless=False,       # 有损压缩模式
-                        minimize_size=True    # 启用额外优化
-                    )
-            except Exception as e:
-                print(f"WebP转换失败（{song_id}），降级保存PNG：{str(e)}")
-                with open(full_path, 'wb') as f:
-                    f.write(response.content)
             cnt += 1
             if(cnt and cnt % 2 == 0):
                 driver.execute_script("""
