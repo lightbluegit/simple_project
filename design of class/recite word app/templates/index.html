@@ -1,0 +1,226 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单词背诵</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .word-display {
+            font-size: 2.5rem;
+            display: flex;
+            justify-content: center; 
+            align-items: center; 
+            margin: 0;
+            min-height: 120px;
+        }
+        .index-display {
+            font-size: 1rem;
+            display: flex;
+            justify-content: center; 
+            align-items: center; 
+            margin: 0;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        .jump-controls {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        .jump-controls input {
+            padding: 10px;
+            width: 60px;
+            margin-right: 10px;
+            text-align: center;
+        }
+        button {
+            padding: 10px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        @media (max-width: 480px) {
+            .word-display {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="word-display" id="wordDisplay">准备开始</div>
+    <div class="word-display" id="meanDisplay">准备开始</div>
+    <div class="controls">
+        <button id="prevBtn">上一个</button>
+        <button id="nextBtn">下一个</button>
+        <button id="showMeanBtn">显示释义</button>
+    </div>
+    <div class="jump-controls">
+        <input type="number" id="jumpInput" min="1" placeholder="序号">
+        <button id="jumpBtn">跳转</button>
+    </div>
+    <div class = "index-display" id = "indexText">1/?</div>
+
+    <script>
+        let words = [];
+        let currentIndex = -1;
+        let showMeaning = false;
+        // 获取并验证所有需要的DOM元素
+        const elements = {
+            wordDisplay: document.getElementById('wordDisplay'),
+            meanDisplay: document.getElementById('meanDisplay'),
+            prevBtn: document.getElementById('prevBtn'),
+            nextBtn: document.getElementById('nextBtn'),
+            showMeanBtn: document.getElementById('showMeanBtn'),
+            indexText: document.getElementById('indexText'),
+            jumpInput: document.getElementById('jumpInput'),
+            jumpBtn: document.getElementById('jumpBtn'),
+        };
+        
+        // 验证元素是否存在
+        const missingElements = Object.entries(elements).filter(([_, element]) => !element);
+        if (missingElements.length > 0) {
+            console.error('以下元素未找到:', missingElements.map(([name]) => name).join(', '));
+            elements.wordDisplay.textContent = '页面初始化失败，请检查控制台';
+        }
+        
+        // 解构元素变量
+        const { wordDisplay, meanDisplay, prevBtn, nextBtn, showMeanBtn, indexText, jumpInput, jumpBtn} = elements;
+        
+        const audio = new Audio();
+
+        // 加载单词列表
+        async function loadWords(randomMode = false) {
+            try {
+                console.log('正在加载单词列表...');
+                const response = await fetch(`/api/words?random=${randomMode}`);
+                console.log('API响应状态:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP错误! 状态码: ${response.status}`);
+                }
+                
+                words = await response.json();
+                console.log('成功加载单词:', words.length);
+                
+                if (words.length > 0) {
+                    currentIndex = 0;
+                    updateDisplay();
+                } else {
+                    console.warn('单词列表为空');
+                    wordDisplay.textContent = '单词列表为空，请检查words.txt';
+                }
+            } catch (error) {
+                console.error('加载单词出错:', error);
+                wordDisplay.textContent = '加载单词失败，请查看控制台';
+            }
+        }
+
+        // 更新显示
+        function updateDisplay() {
+            if (currentIndex >= 0 && currentIndex < words.length) {
+                const [word, meaning] = words[currentIndex];
+                wordDisplay.textContent = `${word}\n`;
+                meanDisplay.textContent = showMeaning ? `\n${meaning}` : `\n`;
+                indexText.textContent = `${currentIndex + 1}/${words.length}`;
+            }
+        }
+
+        // 事件监听
+        prevBtn.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                showMeaning = false;
+                updateDisplay();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentIndex < words.length - 1) {
+                currentIndex++;
+                showMeaning = false;
+                updateDisplay();
+            }
+        });
+
+        showMeanBtn.addEventListener('click', () => {
+            showMeaning = !showMeaning;
+            updateDisplay();
+        });
+
+        function jumpToWord() {
+            const targetIndex = parseInt(jumpInput.value) - 1;
+            if (isNaN(targetIndex) || targetIndex < 0 || targetIndex >= words.length) {
+                alert(`请输入1-${words.length}之间的有效数字`);
+                return;
+            }
+            currentIndex = targetIndex;
+            showMeaning = false;
+            updateDisplay();
+            jumpInput.value = '';
+        }
+        jumpBtn.addEventListener('click', jumpToWord);
+        jumpInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                jumpToWord();
+            }
+        });
+        
+        // 键盘控制
+        document.addEventListener('keydown', (e) => {
+            // 防止页面滚动
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+            }
+            
+            switch(e.key) {
+                case 'ArrowLeft':  // 左：上一个
+                    prevBtn.click();
+                    break;
+                case 'ArrowRight': // 右：下一个
+                    nextBtn.click();
+                    break;
+                case 'ArrowDown':    // 上：展示意思
+                    showMeanBtn.click();
+                    break;
+            }
+        });
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM已加载，开始初始化...');
+            wordDisplay.textContent = '正在加载单词...';
+            
+            // 测试API连接
+            fetch('/api/words')
+                .then(response => {
+                    console.log('API连接测试:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`API错误: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('API测试成功，数据:', data);
+                    loadWords();
+                })
+                .catch(error => {
+                    console.error('初始化失败:', error);
+                    wordDisplay.textContent = `初始化失败: ${error.message}`;
+                });
+        });
+    </script>
+</body>
+</html>
